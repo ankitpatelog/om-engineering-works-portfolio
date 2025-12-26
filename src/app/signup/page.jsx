@@ -2,10 +2,62 @@
 
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { redirect } from 'next/navigation';
 
 export default function SignupCard() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const [form, setform] = useState({
+    "name":"",
+    "email":"",
+    "password": ""
+  })
+
+  const currpassword = [form.password]// made a array to storre the latest passwrod and check if any of the speeling dont match then give hte erro 
+  const [checkpassword, setcheckpassword] = useState({
+    "password":  ""
+  })
+
+  // async  function handlesubmit() {
+  //   const data = {
+  //     "name": form.name,
+  //     "email":form.email,
+  //     "password":form.password
+  //   }
+    
+  //   const sumbit = axios.post("/api/auth/signup" ,data)
+
+  // }
+
+  const handlesubmit = async (e) => {
+    e.preventdefault()
+    try {
+      const response = axios.post("/api/auth/signup" ,data)
+
+      if (response.status===201) {
+        console.log(message)
+        toast.success(message)
+      }elseif(response.status!=201 || response.status!=200){
+        console.log(message)
+        toast.error(message)
+        redirect('login')
+      }
+
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      toast.error("Some error occured")
+    }
+  }
+
+  function handlecheckpassword(id,curr) {
+    if (currpassword!=curr) {
+      
+    }
+  }
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -27,6 +79,11 @@ export default function SignupCard() {
             </label>
             <input
               type="text"
+              value={form.name}
+              onChange={(e) => {
+                setform({...form,[form.name]: e.target.value})
+              }
+              }
               placeholder="John Doe"
               className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
               focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
@@ -72,6 +129,7 @@ export default function SignupCard() {
             </label>
             <div className="relative">
               <input
+              value={}
                 type={showConfirm ? "text" : "password"}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm pr-10
                 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
@@ -88,7 +146,11 @@ export default function SignupCard() {
 
           {/* Signup Button */}
           <button
+          onClick={handlesubmit()}
+          id="check"
             type="submit"
+            value={checkpassword.password}
+            onChange={handlecheckpassword(id), currvalue = {value}}
             className="w-full rounded-md bg-amber-500 py-2 text-sm font-medium text-black
             hover:bg-amber-600 transition"
           >
