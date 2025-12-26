@@ -61,7 +61,7 @@ export default function Navbar() {
           </a>
 
           <a
-            href="/generate-bill"
+            
             className="rounded-md bg-amber-500 px-5 py-2 text-sm font-semibold text-white
             shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all"
           >

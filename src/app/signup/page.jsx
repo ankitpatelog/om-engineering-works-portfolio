@@ -1,180 +1,188 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
-import toast from "react-hot-toast";
-import { redirect } from 'next/navigation';
+import toast, { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function SignupCard() {
+  useEffect(() => {
+    toast.success("Signup to access Generate Bill");
+  }, []);
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState(false);
 
-  const [form, setform] = useState({
-    "name":"",
-    "email":"",
-    "password": ""
-  })
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const currpassword = [form.password]// made a array to storre the latest passwrod and check if any of the speeling dont match then give hte erro 
-  const [checkpassword, setcheckpassword] = useState({
-    "password":  ""
-  })
+  // ✅ YOUR LOGIC: password match check
+  function handleCheckPassword() {
+    if (form.password !== form.confirmPassword) {
+      setError(true);
+      return false;
+    }
+    setError(false);
+    return true;
+  }
 
-  // async  function handlesubmit() {
-  //   const data = {
-  //     "name": form.name,
-  //     "email":form.email,
-  //     "password":form.password
-  //   }
-    
-  //   const sumbit = axios.post("/api/auth/signup" ,data)
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // }
+    // frontend password check
+    if (!handleCheckPassword()) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-  const handlesubmit = async (e) => {
-    e.preventdefault()
     try {
-      const response = axios.post("/api/auth/signup" ,data)
+      const response = await axios.post("/api/auth/signup", {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      });
 
-      if (response.status===201) {
-        console.log(message)
-        toast.success(message)
-      }elseif(response.status!=201 || response.status!=200){
-        console.log(message)
-        toast.error(message)
-        redirect('login')
+      toast.success("Account created successfully");
+      router.push("/login");
+    } catch (err) {
+      //  THIS PART HANDLES BACKEND ValidationError
+      //   BASICALLY AXIOS RETURN THIS WHEN SOME ERROR OCCURED IN THIS FORM
+      //   IN THE OBJECT FORM
+
+      //       err.response = {
+      //   data: { ... },    // error message or response body
+      //   status: 400,      // status code
+      //   headers: { ... }  // response headers
+
+      //   AND ERROR CONTAINS THIS
+      // 'error = {
+      //   message: "Request failed with status code 400",
+      //   response: {
+      //     data: {
+      //       error: "Invalid email or password"
+      //     },
+      //     status: 400,
+      //     headers: {...}
+      //   },
+      //   request: {...}
+      // }
+
+      // }
+
+      if (err.response) {
+        const { status, data } = err.response;
+
+        if (status === 400 && data?.error) {
+          // ValidationError message from backend
+          toast.error(data.error);
+        } else if (data?.message) {
+          toast.error(data.message);
+        } else {
+          toast.error("Signup failed");
+        }
+      } else {
+        toast.error("Server not responding");
       }
-
-    } catch (error) {
-      console.error("Signup error:", error.response?.data || error.message);
-      toast.error("Some error occured")
     }
-  }
-
-  function handlecheckpassword(id,curr) {
-    if (currpassword!=curr) {
-      
-    }
-  }
-  
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-sm rounded-xl border bg-white shadow-lg p-6">
-        {/* Title */}
-        <h1 className="text-xl font-semibold text-gray-900">
-          Create an account
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Enter your details below to create your account
-        </p>
+    <>
+      <Toaster position="top-right" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+        <div className="w-full max-w-sm rounded-xl border bg-white shadow-lg p-6">
+          <h1 className="text-xl font-semibold text-gray-900">
+            Create an account
+          </h1>
 
-        {/* Form */}
-        <form className="mt-6 space-y-4">
-          {/* Name */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Full name
-            </label>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* Name */}
             <input
               type="text"
+              placeholder="Full name"
               value={form.name}
-              onChange={(e) => {
-                setform({...form,[form.name]: e.target.value})
-              }
-              }
-              placeholder="John Doe"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
-              focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full rounded-md border px-3 py-2 text-sm"
             />
-          </div>
 
-          {/* Email */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">Email</label>
+            {/* Email */}
             <input
               type="email"
-              placeholder="m@example.com"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm
-              focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="w-full rounded-md border px-3 py-2 text-sm"
             />
-          </div>
 
-          {/* Password */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Password
-            </label>
+            {/* Password */}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm pr-10
-                focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="w-full rounded-md border px-3 py-2 text-sm pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          </div>
 
-          {/* Confirm Password */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-gray-700">
-              Confirm password
-            </label>
+            {/* Confirm Password */}
             <div className="relative">
               <input
-              value={}
                 type={showConfirm ? "text" : "password"}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm pr-10
-                focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                placeholder="Confirm password"
+                value={form.confirmPassword}
+                onChange={(e) =>
+                  setForm({ ...form, confirmPassword: e.target.value })
+                }
+                className="w-full rounded-md border px-3 py-2 text-sm pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          </div>
 
-          {/* Signup Button */}
-          <button
-          onClick={handlesubmit()}
-          id="check"
-            type="submit"
-            value={checkpassword.password}
-            onChange={handlecheckpassword(id), currvalue = {value}}
-            className="w-full rounded-md bg-amber-500 py-2 text-sm font-medium text-black
-            hover:bg-amber-600 transition"
-          >
-            Create account
-          </button>
+            {/* 🔴 Inline password error (your requirement) */}
+            {error && (
+              <p id="password-error" className="text-xs text-red-500">
+                Passwords do not match
+              </p>
+            )}
 
-          {/* Google Signup */}
-          <button
-            type="button"
-            className="w-full rounded-md border border-gray-300 py-2 text-sm
-            hover:bg-gray-50 transition"
-          >
-            Sign up with Google
-          </button>
-        </form>
+            {/* Submit */}
+            <button
+              type="submit"
+              className="w-full rounded-md bg-amber-500 py-2 text-sm font-medium text-black"
+            >
+              Create account
+            </button>
+          </form>
 
-        {/* Footer */}
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <a href="/login" className="text-amber-600 hover:underline">
-            Login
-          </a>
-        </p>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{" "}
+            <a href="/login" className="text-amber-600 hover:underline">
+              Login
+            </a>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
