@@ -1,46 +1,70 @@
+"use client";
 
-import React from 'react'
-import connectToDatabase from "@/library/mongoDb";
-import Company from "@/models/companyModel"
-import CompanyDetailsRequired from '../../generate-bill-components/addcomapnymsg';
-import toast , {Toaster} from "red-hot-toast"
 import { useSession } from "next-auth/react";
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { OrbitProgress } from "react-loading-indicators";
+import CompanyDetailsForm from "../../generate-bill-components/addcompanydetail";
+import CompanyDetailsSection from "../../generate-bill-components/showcompdetails";
 
-const editcompanydetails = () => {
-  const { data: session } = useSession();
-  const [havedetail, sethavedetail] = useState(true)
+export default function EditCompanyDetails() {
+  const { data: session, status } = useSession();
 
-  const handlelayout = (e) => {
-    <Toaster/>
-    try {
-      const connection = connectToDatabase();
+  const [hasDetail, setHasDetail] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-      if(!connection){
-        toast.error("backend connection failad pls login after some time ")
-      }
+  useEffect(() => {
+    // wait until session status is known
+    if (status === "loading") return;
 
-      //if conn is proper
-      const companyid = session.user?.id//company id is same as the user ._id stored at the time of mongodb login
-      const userid = Company.findById({ _id: companyid })
-      if (companyid!==userid) {
-        sethavedetail(false)//it means Company model is not created and the user need to fill the form and create his copany id
-      }
-
-
-
-    } catch (error) {
-      
+    // not logged in
+    if (status === "unauthenticated") {
+      setLoading(false);
+      return;
     }
-  }
-  
-  
+
+    const checkCompany = async () => {
+      try {
+        console.log("Checking company...");
+        const res = await axios.get("/api/company/check");
+
+        setHasDetail(res.data.hasCompany);
+        console.log("Has company:", res.data.hasCompany);
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to check company details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkCompany();
+  }, [status]);
+
+  // if (loading) return <p>Loading...</p>;
+
   return (
-    <div>this is edit company details section</div>
-    {handlelayout}
-    {havedetail && <CompanyDetailsRequired/>}
+    <>
+      <Toaster position="top-right" />
 
-  )
+      {/* If company does NOT exist →  show form */}
+      {hasDetail && <CompanyDetailsSection />}
+      {!hasDetail && <CompanyDetailsForm />}
+
+      {loading ? (
+        <OrbitProgress
+          variant="track-disc"
+          color="#ef9b3d"
+          size="small"
+          text=""
+          textColor=""
+        />
+      ) : (
+        <p></p>
+      )}
+
+      {/* If company does exist →  show form */}
+    </>
+  );
 }
-
-export default editcompanydetails

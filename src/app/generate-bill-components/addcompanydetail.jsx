@@ -5,8 +5,6 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 
 export default function CompanyDetailsForm() {
-  const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
     companyName: "",
     gstin: "",
@@ -25,38 +23,16 @@ export default function CompanyDetailsForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      const res = await axios.post(
-        "/api/company/addcompdetail",
-        form,
-        {
-          headers: { "Content-Type": "application/json" },
+        const res = axios("/api/company/addcompdetail")
+        if(!res.ok){
+            toast.error("Data saving error occured ")
         }
-      );
 
-      toast.success(res.data.message || "Company saved successfully");
-
-      setForm({
-        companyName: "",
-        gstin: "",
-        panno: "",
-        address: "",
-        state: "",
-        statecode: "",
-        phone: "",
-        email: "",
-        invoicePrefix: "INVOICE NO:",
-      });
-
+        toast.success("Data saved successfully")
     } catch (error) {
-      console.error(error);
-      toast.error(
-        error.response?.data?.message || "Something went wrong"
-      );
-    } finally {
-      setLoading(false);
+        console.log(error)
     }
   };
 
@@ -70,6 +46,7 @@ export default function CompanyDetailsForm() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Company Name */}
           <input
             name="companyName"
             placeholder="Company Name"
@@ -79,6 +56,7 @@ export default function CompanyDetailsForm() {
             className="w-full border rounded-md px-3 py-2 text-sm"
           />
 
+          {/* GST + PAN */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               name="gstin"
@@ -88,6 +66,7 @@ export default function CompanyDetailsForm() {
               required
               className="w-full border rounded-md px-3 py-2 text-sm uppercase"
             />
+
             <input
               name="panno"
               placeholder="PAN Number"
@@ -98,6 +77,7 @@ export default function CompanyDetailsForm() {
             />
           </div>
 
+          {/* Address */}
           <textarea
             name="address"
             placeholder="Company Address"
@@ -108,6 +88,7 @@ export default function CompanyDetailsForm() {
             className="w-full border rounded-md px-3 py-2 text-sm"
           />
 
+          {/* State + Code */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               name="state"
@@ -117,17 +98,19 @@ export default function CompanyDetailsForm() {
               required
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
+
             <input
               name="statecode"
-              type="number"
-              placeholder="State Code"
+              placeholder="State Code (eg: 27)"
               value={form.statecode}
               onChange={handleChange}
               required
+              type="number"
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
           </div>
 
+          {/* Phone + Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               name="phone"
@@ -137,6 +120,7 @@ export default function CompanyDetailsForm() {
               required
               className="w-full border rounded-md px-3 py-2 text-sm"
             />
+
             <input
               name="email"
               type="email"
@@ -148,6 +132,7 @@ export default function CompanyDetailsForm() {
             />
           </div>
 
+          {/* Invoice Prefix */}
           <input
             name="invoicePrefix"
             placeholder="Invoice Prefix"
@@ -156,12 +141,13 @@ export default function CompanyDetailsForm() {
             className="w-full border rounded-md px-3 py-2 text-sm uppercase"
           />
 
+          {/* Submit */}
           <button
+          onClick={handleSubmit}
             type="submit"
-            disabled={loading}
-            className="bg-amber-500 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-amber-600 disabled:opacity-50"
+            className="bg-amber-500 text-white px-6 py-2 rounded-md text-sm font-semibold hover:bg-amber-600"
           >
-            {loading ? "Saving..." : "Save Company Details"}
+            Save Company Details
           </button>
         </form>
       </div>
