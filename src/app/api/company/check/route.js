@@ -10,7 +10,7 @@ export async function GET() {
 
     const session = await getServerSession(authOptions);
 
-    // ✅ If not logged in
+    //  If not logged in
     if (!session) {
       return NextResponse.json({ hasCompany: false });
     }

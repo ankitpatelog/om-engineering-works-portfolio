@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/library/auth";
 
-export async function GET() {
+export async function PUT(req) {
   try {
     await connectToDatabase();
 
@@ -17,25 +17,26 @@ export async function GET() {
       );
     }
 
-    const company = await Company.findOne({
-      userId: session.user.id,
-    }).lean();
+    const body = await req.json();
 
-    if (!company) {
+    const updatedCompany = await Company.findOneAndUpdate(
+      { userId: session.user.id },   // filter
+      { $set: body },                // update
+      { new: true }                  // return updated doc
+    );
+
+    if (!updatedCompany) {
       return NextResponse.json(
         { message: "Company not found" },
         { status: 404 }
       );
     }
 
-    // ✅ Return company directly
-    return NextResponse.json(company, { status: 200 });
+    return NextResponse.json(updatedCompany, { status: 200 });
 
   } catch (error) {
-    console.error("Company fetch error:", error);
-
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      { message: "Update failed" },
       { status: 500 }
     );
   }

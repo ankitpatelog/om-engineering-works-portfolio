@@ -1,68 +1,121 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import { useState, useEffect } from "react";
 
-export default function CompanyDetailsSection() {
+export default function EditCompanyDrawer({ open, onClose, company }) {
+  const [form, setForm] = useState(company || {});
+
+  useEffect(() => {
+    setForm(company || {});
+  }, [company]);
+
+  if (!open) return null;
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   return (
-    <section className="w-full rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 px-6 py-5 shadow-sm">
-      
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-base font-bold tracking-wide text-gray-900">
-            Company Details
-          </h2>
-          <p className="text-xs text-gray-500">
-            Used on invoices and billing documents
-          </p>
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
+      {/* Drawer Panel */}
+      <div className="h-full w-[420px] bg-white p-6 shadow-xl">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Edit Company Details</h2>
+          <button
+            onClick={onClose}
+            className="text-xl text-gray-500 hover:text-black"
+          >
+            ✕
+          </button>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-        >
-          <Pencil size={14} />
-          Edit Details
-        </button>
-      </div>
+        {/* Form */}
+        <div className="space-y-4">
+          <Input
+            label="Company Name"
+            name="name"
+            value={form.name || ""}
+            onChange={handleChange}
+          />
 
-      {/* ROW 1 */}
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Info label="Company Name" value="OM Engineering Works" />
-        <Info label="GSTIN" value="27ABCDE1234F1Z5" />
-        <Info label="PAN Number" value="ABCDE1234F" />
-      </div>
+          <Input
+            label="GSTIN"
+            name="gstin"
+            value={form.gstin || ""}
+            onChange={handleChange}
+          />
 
-      {/* ROW 2 */}
-      <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Info label="Phone" value="+91 98765 43210" />
-        <Info label="Email" value="omengineering@gmail.com" />
-        <Info label="State" value="Maharashtra (27)" />
-      </div>
+          <Input
+            label="PAN Number"
+            name="pan"
+            value={form.pan || ""}
+            onChange={handleChange}
+          />
 
-      {/* Address */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3">
-        <p className="text-xs font-semibold uppercase text-gray-500">
-          Address
-        </p>
-        <p className="mt-1 text-sm font-medium text-gray-800">
-          Plot No. 21, MIDC Industrial Area, Pune – 411026
-        </p>
+          <Input
+            label="Phone"
+            name="phone"
+            value={form.phone || ""}
+            onChange={handleChange}
+          />
+
+          <Input
+            label="Email"
+            name="email"
+            value={form.email || ""}
+            onChange={handleChange}
+          />
+
+          <div>
+            <label className="mb-1 block text-sm text-gray-600">
+              Address
+            </label>
+            <textarea
+              name="address"
+              rows={3}
+              value={form.address || ""}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+            />
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-6 flex justify-end gap-3 border-t pt-4">
+          <button
+            onClick={onClose}
+            className="rounded-lg border px-4 py-2 text-gray-600 hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={() => {
+              console.log(form); // later → API call
+              onClose();
+            }}
+            className="rounded-lg bg-amber-500 px-5 py-2 font-semibold text-white hover:bg-amber-600"
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-/* Info Block */
-function Info({ label, value }) {
+/* ✅ Input component — THIS FIXES THE ERROR */
+function Input({ label, ...props }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-3">
-      <p className="text-xs font-semibold uppercase text-gray-500">
+    <div>
+      <label className="mb-1 block text-sm text-gray-600">
         {label}
-      </p>
-      <p className="mt-1 text-sm font-bold text-gray-900">
-        {value}
-      </p>
+      </label>
+      <input
+        {...props}
+        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+      />
     </div>
   );
 }

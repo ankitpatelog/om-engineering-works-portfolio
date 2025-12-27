@@ -9,62 +9,58 @@ import CompanyDetailsForm from "../../generate-bill-components/addcompanydetail"
 import CompanyDetailsSection from "../../generate-bill-components/showcompdetails";
 
 export default function EditCompanyDetails() {
-  const { data: session, status } = useSession();
-
-  const [hasDetail, setHasDetail] = useState(false);
+  const { status } = useSession();
+  const [hasDetail, setHasDetail] = useState(null); // 👈 IMPORTANT
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // wait until session status is known
-    if (status === "loading") return;
+    if (status === "loading") return;//status given by the axios loading, unautho,authorized
 
-    // not logged in
     if (status === "unauthenticated") {
       setLoading(false);
+      setHasDetail(false);
       return;
     }
 
     const checkCompany = async () => {
       try {
-        console.log("Checking company...");
         const res = await axios.get("/api/company/check");
-
         setHasDetail(res.data.hasCompany);
-        console.log("Has company:", res.data.hasCompany);
       } catch (error) {
-        console.error(error);
         toast.error("Failed to check company details");
+        setHasDetail(false);
       } finally {
         setLoading(false);
       }
     };
-
     checkCompany();
   }, [status]);
 
-  // if (loading) return <p>Loading...</p>;
+  /* ✅ SHOW ONLY LOADER WHILE CHECKING */
+  if (loading) {
+    return (
+      <div className="flex justify-center py-6">
+        <div style={{ transform: "scale(0.6)" }}>
+          <OrbitProgress
+            variant="track-disc"
+            color="#ef9b3d"
+            size="small"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Toaster position="top-right" />
 
-      {/* If company does NOT exist →  show form */}
-      {hasDetail && <CompanyDetailsSection />}
-      {!hasDetail && <CompanyDetailsForm />}
-
-      {loading ? (
-        <OrbitProgress
-          variant="track-disc"
-          color="#ef9b3d"
-          size="small"
-          text=""
-          textColor=""
-        />
+      {/* ✅ render ONLY after loading is finished */}
+      {hasDetail ? (
+        <CompanyDetailsSection />
       ) : (
-        <p></p>
+        <CompanyDetailsForm />
       )}
-
-      {/* If company does exist →  show form */}
     </>
   );
 }
