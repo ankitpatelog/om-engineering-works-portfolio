@@ -1,121 +1,152 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-export default function EditCompanyDrawer({ open, onClose, company }) {
-  const [form, setForm] = useState(company || {});
+export default function AddCustomerForm() {
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    setForm(company || {});
-  }, [company]);
-
-  if (!open) return null;
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    gstin: "",
+    pan: "",
+    address: "",
+    state: "",
+    stateCode: "",
+    shippedTo: "",
+  });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await axios.post("/api/customer", form);
+
+      toast.success(res.data.message || "Customer added successfully");
+
+      // reset form
+      setForm({
+        name: "",
+        phone: "",
+        gstin: "",
+        pan: "",
+        address: "",
+        state: "",
+        stateCode: "",
+        shippedTo: "",
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to add customer"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40">
-      {/* Drawer Panel */}
-      <div className="h-full w-[420px] bg-white p-6 shadow-xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Edit Company Details</h2>
+    <div className="max-w-3xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-xl font-bold text-gray-900">
+        Add Customer
+      </h2>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+      >
+        <Input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Customer Name *"
+        />
+
+        <Input
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="Phone Number *"
+        />
+
+        <Input
+          name="gstin"
+          value={form.gstin}
+          onChange={handleChange}
+          placeholder="GSTIN"
+        />
+
+        <Input
+          name="pan"
+          value={form.pan}
+          onChange={handleChange}
+          placeholder="PAN Number"
+        />
+
+        <Input
+          name="state"
+          value={form.state}
+          onChange={handleChange}
+          placeholder="State *"
+        />
+
+        <Input
+          name="stateCode"
+          value={form.stateCode}
+          onChange={handleChange}
+          placeholder="State Code *"
+        />
+
+        <textarea
+          name="address"
+          value={form.address}
+          onChange={handleChange}
+          placeholder="Billing Address *"
+          className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          required
+        />
+
+        <textarea
+          name="shippedTo"
+          value={form.shippedTo}
+          onChange={handleChange}
+          placeholder="Shipped To Address (optional)"
+          className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+        />
+
+        <div className="col-span-full flex justify-end">
           <button
-            onClick={onClose}
-            className="text-xl text-gray-500 hover:text-black"
+            type="submit"
+            disabled={loading}
+            className="rounded-md bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition disabled:opacity-60"
           >
-            ✕
+            {loading ? "Saving..." : "Save Customer"}
           </button>
         </div>
-
-        {/* Form */}
-        <div className="space-y-4">
-          <Input
-            label="Company Name"
-            name="name"
-            value={form.name || ""}
-            onChange={handleChange}
-          />
-
-          <Input
-            label="GSTIN"
-            name="gstin"
-            value={form.gstin || ""}
-            onChange={handleChange}
-          />
-
-          <Input
-            label="PAN Number"
-            name="pan"
-            value={form.pan || ""}
-            onChange={handleChange}
-          />
-
-          <Input
-            label="Phone"
-            name="phone"
-            value={form.phone || ""}
-            onChange={handleChange}
-          />
-
-          <Input
-            label="Email"
-            name="email"
-            value={form.email || ""}
-            onChange={handleChange}
-          />
-
-          <div>
-            <label className="mb-1 block text-sm text-gray-600">
-              Address
-            </label>
-            <textarea
-              name="address"
-              rows={3}
-              value={form.address || ""}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
-            />
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex justify-end gap-3 border-t pt-4">
-          <button
-            onClick={onClose}
-            className="rounded-lg border px-4 py-2 text-gray-600 hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={() => {
-              console.log(form); // later → API call
-              onClose();
-            }}
-            className="rounded-lg bg-amber-500 px-5 py-2 font-semibold text-white hover:bg-amber-600"
-          >
-            Save Changes
-          </button>
-        </div>
-      </div>
+      </form>
     </div>
   );
 }
 
-/* ✅ Input component — THIS FIXES THE ERROR */
-function Input({ label, ...props }) {
+/* ---------- Reusable Input ---------- */
+function Input({ name, value, onChange, placeholder }) {
   return (
-    <div>
-      <label className="mb-1 block text-sm text-gray-600">
-        {label}
-      </label>
-      <input
-        {...props}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
-      />
-    </div>
+    <input
+      name={name}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+      required={placeholder.includes("*")}
+    />
   );
 }

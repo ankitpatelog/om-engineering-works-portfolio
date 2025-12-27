@@ -44,7 +44,7 @@ export default function Navbar2() {
           </button>
 
           <button
-            onClick={() => router.push("/generate-bill")}
+            onClick={() => router.push("/dashboard")}
             className="rounded-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white
             shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all"
           >
