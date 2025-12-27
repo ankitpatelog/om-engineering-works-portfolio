@@ -18,9 +18,9 @@ export const authOptions = {
 
         await connectToDatabase();
 
-        const user = await UserModel
-          .findOne({ email: credentials.email.toLowerCase() })
-          .select("+password");
+        const user = await UserModel.findOne({
+          email: credentials.email.toLowerCase(),
+        }).select("+password");
 
         if (!user) throw new Error("Invalid credentials");
 
@@ -47,8 +47,11 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
+      // Runs on login
       if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
       }
       return token;
     },
@@ -56,6 +59,8 @@ export const authOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
       }
       return session;
     },

@@ -41,7 +41,7 @@ export default function LoginCard() {
       }
 
       toast.success("Login successful!");
-      router.push("/generate-bill");
+      router.push("/dashboard");
 
     } catch (err) {
       toast.dismiss(toastId);

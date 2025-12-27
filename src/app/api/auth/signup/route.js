@@ -1,6 +1,3 @@
-// import connectToDatabase from "../../../../library/mongoDb";
-// import User from "../../../../models/UserModel";
-// import { NextResponse } from "next/server";
 
 import connectToDatabase from "@/library/mongoDb";
 import User from "@/models/userModel";

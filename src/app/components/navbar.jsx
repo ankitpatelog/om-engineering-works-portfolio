@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Navbar() {
+  <Toaster />;
+  const { data: session } = useSession();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const navItems = [
@@ -17,6 +23,32 @@ export default function Navbar() {
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
       setOpen(false); // close mobile menu
+    }
+  };
+
+  const handlebill = () => {
+    if (session) {
+      toast.success("Welcome");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+    } else {
+      toast.success("Please log in generate bills", {
+        style: {
+          border: "1px solid #F59E0B",
+          padding: "5px",
+          color: "#92400E", 
+          background: "#FFFBEB", 
+        },
+        iconTheme: {
+          primary: "#F59E0B", 
+          secondary: "#FFFBEB",
+        },
+      });
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 500);
     }
   };
 
@@ -60,13 +92,13 @@ export default function Navbar() {
             Download Brochure
           </a>
 
-          <a
-            
+          <button
+            onClick={handlebill}
             className="rounded-md bg-amber-500 px-5 py-2 text-sm font-semibold text-white
             shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all"
           >
             Generate Bill
-          </a>
+          </button>
         </div>
 
         {/* HAMBURGER – MOBILE */}

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const companySchema = new mongoose.Schema(
   {
-    // 🔗 Relation with User
+    //  Relation with User
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "om-engineering-works-user",

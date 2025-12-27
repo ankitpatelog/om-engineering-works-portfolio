@@ -17,7 +17,7 @@ export default function SubNavbar() {
           <button
             onClick={() => router.push("/dashboard")}
             className={`cursor-pointer transition-colors ${
-              pathname === "/generate-bill"
+              pathname === "/dashboard"
                 ? "text-amber-600 border-b-2 border-amber-500"
                 : "text-gray-600 hover:text-amber-600"
             }`}
@@ -26,15 +26,28 @@ export default function SubNavbar() {
           </button>
 
           <button
-            onClick={() => router.push("/dashboard/history")}
+            onClick={() => router.push("/dashboard/edit-company-details")}
             className={`cursor-pointer transition-colors ${
-              pathname === "/generate-bill/history"
+              pathname === "/dashboard/edit-company-details"
+                ? "text-amber-600 border-b-2 border-amber-500"
+                : "text-gray-600 hover:text-amber-600"
+            }`}
+          >
+            Edit Your Company Details
+          </button>
+
+          <button
+            onClick={() => router.push("/dashboard/bill-history")}
+            className={`cursor-pointer transition-colors ${
+              pathname === "/dashboard/bill-history"
                 ? "text-amber-600 border-b-2 border-amber-500"
                 : "text-gray-600 hover:text-amber-600"
             }`}
           >
             Bill History
           </button>
+
+          
         </div>
 
         {/* RIGHT – LAST INVOICE */}
