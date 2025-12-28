@@ -56,7 +56,7 @@ export default function SubNavbar3() {
             {openMenu === "products" && (
               <div className="absolute left-0 mt-2 w-48 rounded-md border bg-white shadow-md">
                 <button
-                  onClick={() => router.push("/dashboard/add-product")}
+                  onClick={() => router.push("/manage-details/add-product")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                 >
                   Add Product

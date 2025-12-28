@@ -1,5 +1,5 @@
 import connectToDatabase from "@/library/mongoDb";
-import Customer from "@/models/customerModel";
+import Product from "@/models/productModel";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/library/auth";
@@ -23,55 +23,57 @@ export async function POST(request) {
 
     const {
       name,
-      phone,
-      gstin,
-      pan,
-      address,
-      state,
-      stateCode,
-      shippedTo,
+      description,
+      hsnCode,
+      rate,
+      unit,
+      gstPercent,
     } = body;
 
     // ❗ REQUIRED FIELD CHECK
-    if (!name || !phone || !address || !state || !stateCode) {
+    if (
+      !name ||
+      !description ||
+      !hsnCode ||
+      rate === undefined ||
+      gstPercent === undefined
+    ) {
       return NextResponse.json(
         { message: "Please fill all required fields" },
         { status: 400 }
       );
     }
 
-    // 🚫 DUPLICATE CUSTOMER (optional but recommended)
-    const existingCustomer = await Customer.findOne({
+    // 🚫 DUPLICATE PRODUCT (same name + user)
+    const existingProduct = await Product.findOne({
       userId: session.user.id,
-      phone,
+      name,
     });
 
-    if (existingCustomer) {
+    if (existingProduct) {
       return NextResponse.json(
-        { message: "Customer already exists" },
+        { message: "Product already exists" },
         { status: 409 }
       );
     }
 
-    // ✅ CREATE CUSTOMER
-    const customer = await Customer.create({
+    // ✅ CREATE PRODUCT
+    const product = await Product.create({
       userId: session.user.id,
       name,
-      phone,
-      gstin,
-      pan,
-      address,
-      state,
-      stateCode,
-      shippedTo,
+      description,
+      hsnCode,
+      rate,
+      unit,
+      gstPercent,
     });
 
     return NextResponse.json(
-      { message: "Customer created successfully", customer },
+      { message: "Product created successfully", product },
       { status: 201 }
     );
   } catch (error) {
-    console.error("CUSTOMER CREATE ERROR:", error);
+    console.error("PRODUCT CREATE ERROR:", error);
 
     return NextResponse.json(
       { message: error.message || "Internal Server Error" },

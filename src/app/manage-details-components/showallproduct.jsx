@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { Pencil } from "lucide-react";
+import { OrbitProgress } from "react-loading-indicators";
 
 export default function ProductListSection() {
   const [products, setProducts] = useState([]);
@@ -18,7 +19,8 @@ export default function ProductListSection() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("/api/company/getproducts");
+        setLoading(true);
+        const res = await axios.get("/api/company/getallproducts");
         setProducts(res.data || []);
       } catch (err) {
         toast.error("Failed to load products");
@@ -33,30 +35,32 @@ export default function ProductListSection() {
   // 🧠 Filter logic
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchesName = p.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase());
+      const matchesName = p.name?.toLowerCase().includes(search.toLowerCase());
 
-      const matchesGST = gstFilter
-        ? String(p.gstPercent) === gstFilter
-        : true;
+      const matchesGST = gstFilter ? String(p.gstPercent) === gstFilter : true;
 
-      const matchesUnit = unitFilter
-        ? p.unit === unitFilter
-        : true;
+      const matchesUnit = unitFilter ? p.unit === unitFilter : true;
 
       return matchesName && matchesGST && matchesUnit;
     });
   }, [products, search, gstFilter, unitFilter]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-6">
+        <div style={{ transform: "scale(0.6)" }}>
+          <OrbitProgress variant="track-disc" color="#ef9b3d" size="small" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-4 sm:px-6">
       <Toaster position="top-right" />
 
       <div className="mx-auto mt-6 max-w-7xl rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-        <h2 className="mb-4 text-xl font-bold text-gray-900">
-          Product List
-        </h2>
+        <h2 className="mb-4 text-xl font-bold text-gray-900">Product List</h2>
 
         {/* 🧩 FILTER BAR */}
         <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -137,23 +141,16 @@ export default function ProductListSection() {
                   </tr>
                 ) : (
                   filteredProducts.map((p) => (
-                    <tr
-                      key={p._id}
-                      className="border-t hover:bg-gray-50"
-                    >
+                    <tr key={p._id} className="border-t hover:bg-gray-50">
                       <Td>{p.name}</Td>
                       <Td>{p.hsnCode}</Td>
                       <Td>₹{p.rate}</Td>
                       <Td>{p.gstPercent}%</Td>
                       <Td>{p.unit}</Td>
-                      <Td className="max-w-xs truncate">
-                        {p.description}
-                      </Td>
+                      <Td className="max-w-xs truncate">{p.description}</Td>
                       <Td className="text-center">
                         <button
-                          onClick={() =>
-                            toast("Edit clicked (UI only)")
-                          }
+                          onClick={() => toast("Edit clicked (UI only)")}
                           className="rounded-md p-1 text-amber-600 hover:bg-amber-100"
                         >
                           <Pencil size={16} />
@@ -184,9 +181,7 @@ function Th({ children, className = "" }) {
 
 function Td({ children, className = "" }) {
   return (
-    <td
-      className={`whitespace-nowrap px-3 py-2 text-gray-700 ${className}`}
-    >
+    <td className={`whitespace-nowrap px-3 py-2 text-gray-700 ${className}`}>
       {children}
     </td>
   );

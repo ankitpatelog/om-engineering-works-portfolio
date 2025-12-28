@@ -4,18 +4,16 @@ import { useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-export default function AddCustomerForm() {
+export default function AddProductForm() {
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
-    gstin: "",
-    pan: "",
-    address: "",
-    state: "",
-    stateCode: "",
-    shippedTo: "",
+    description: "",
+    hsnCode: "",
+    rate: "",
+    unit: "Nos.",
+    gstPercent: "",
   });
 
   const handleChange = (e) => {
@@ -30,24 +28,30 @@ export default function AddCustomerForm() {
     setLoading(true);
 
     try {
-      await toast.promise(axios.post("/api/company/addcustomers", form), {
-        loading: "Saving...",
-        success: "Data saved successfully",
-        error: (err) => err.response?.data?.message || "Could not save",
-      });
+      const payload = {
+        ...form,
+        rate: Number(form.rate),
+        gstPercent: Number(form.gstPercent),
+      };
+
+      await toast.promise(
+        axios.post("/api/company/addproduct", payload),
+        {
+          loading: "Saving product...",
+          success: "Product added successfully",
+          error: (err) =>
+            err.response?.data?.message || "Could not save product",
+        }
+      );
 
       setForm({
         name: "",
-        phone: "",
-        gstin: "",
-        pan: "",
-        address: "",
-        state: "",
-        stateCode: "",
-        shippedTo: "",
+        description: "",
+        hsnCode: "",
+        rate: "",
+        unit: "Nos.",
+        gstPercent: "",
       });
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add customer");
     } finally {
       setLoading(false);
     }
@@ -58,7 +62,7 @@ export default function AddCustomerForm() {
       <Toaster position="top-right" />
       <div className="w-full max-w-3xl mt-6 sm:mt-10 rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
         <h2 className="mb-4 text-center text-xl font-bold text-gray-900">
-          Add Customer
+          Add Product
         </h2>
 
         <form
@@ -69,53 +73,53 @@ export default function AddCustomerForm() {
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="Customer Name *"
-          />
-          <Input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone Number *"
-          />
-          <Input
-            name="gstin"
-            value={form.gstin}
-            onChange={handleChange}
-            placeholder="GSTIN"
-          />
-          <Input
-            name="pan"
-            value={form.pan}
-            onChange={handleChange}
-            placeholder="PAN Number"
-          />
-          <Input
-            name="state"
-            value={form.state}
-            onChange={handleChange}
-            placeholder="State *"
-          />
-          <Input
-            name="stateCode"
-            value={form.stateCode}
-            onChange={handleChange}
-            placeholder="State Code *"
+            placeholder="Product Name *"
           />
 
-          <textarea
-            name="address"
-            value={form.address}
+          <Input
+            name="hsnCode"
+            value={form.hsnCode}
             onChange={handleChange}
-            placeholder="Billing Address *"
-            className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder="HSN Code *"
+          />
+
+          <Input
+            name="rate"
+            value={form.rate}
+            onChange={handleChange}
+            placeholder="Rate *"
+            type="number"
+          />
+
+          <select
+            name="gstPercent"
+            value={form.gstPercent}
+            onChange={handleChange}
             required
+            className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+          >
+            <option value="">GST % *</option>
+            <option value="0">0%</option>
+            <option value="3">3%</option>
+            <option value="5">5%</option>
+            <option value="12">12%</option>
+            <option value="18">18%</option>
+            <option value="28">28%</option>
+          </select>
+
+          <Input
+            name="unit"
+            value={form.unit}
+            onChange={handleChange}
+            placeholder="Unit"
           />
 
           <textarea
-            name="shippedTo"
-            value={form.shippedTo}
+            name="description"
+            value={form.description}
             onChange={handleChange}
-            placeholder="Shipped To Address (optional)"
+            placeholder="Product Description *"
+            required
             className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
           />
 
@@ -125,7 +129,7 @@ export default function AddCustomerForm() {
               disabled={loading}
               className="w-full sm:w-auto rounded-md bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition disabled:opacity-60"
             >
-              {loading ? "Saving..." : "Save Customer"}
+              {loading ? "Saving..." : "Save Product"}
             </button>
           </div>
         </form>
@@ -135,15 +139,16 @@ export default function AddCustomerForm() {
 }
 
 /* ---------- Reusable Input ---------- */
-function Input({ name, value, onChange, placeholder }) {
+function Input({ name, value, onChange, placeholder, type = "text" }) {
   return (
     <input
+      type={type}
       name={name}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
       required={placeholder.includes("*")}
+      className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
     />
   );
 }
