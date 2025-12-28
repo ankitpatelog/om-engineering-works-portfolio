@@ -62,7 +62,7 @@ export default function SubNavbar3() {
                   Add Product
                 </button>
                 <button
-                  onClick={() => router.push("/dashboard/products")}
+                  onClick={() => router.push("/manage-details/view-all-products")}
                   className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                 >
                   View All Products
