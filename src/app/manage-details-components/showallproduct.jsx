@@ -164,7 +164,7 @@ export default function ProductListSection() {
         </div>
       </div>
 
-      {/* ✅ CORRECT modal rendering */}
+      {/*  modal rendering */}
       {editProduct && (
         <EditProductForm
           product={editProduct}
