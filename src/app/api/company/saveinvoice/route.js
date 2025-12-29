@@ -6,23 +6,15 @@ import { authOptions } from "@/library/auth";
 
 export async function POST(request) {
   try {
-    // 1️⃣ Connect DB
     await connectToDatabase();
 
-    // 2️⃣ Auth check
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 3️⃣ Parse body
     const body = await request.json();
 
-    // 4️⃣ Basic validations
     if (!body.invoiceNumber) {
       return NextResponse.json(
         { message: "Invoice number is required" },
@@ -37,7 +29,13 @@ export async function POST(request) {
       );
     }
 
-    // 5️⃣ Create invoice (SNAPSHOT SAVE)
+    if (!body.totals?.grandTotal) {
+      return NextResponse.json(
+        { message: "Invoice totals are required" },
+        { status: 400 }
+      );
+    }
+
     const invoice = await Invoice.create({
       userId: session.user.id,
 
@@ -50,27 +48,22 @@ export async function POST(request) {
 
       items: body.items,
 
-      transport: body.transport || {},
+      transport: {
+        mode: body.transport?.mode || "By Road",
+        vehicleNo: body.transport?.vehicleNo || "",
+        noOfPackages: Number(body.transport?.noOfPackages) || 0,
+        approxWeight: Number(body.transport?.approxWeight) || 0,
+      },
+
       totals: body.totals,
       amountInWords: body.amountInWords,
 
       status: "FINAL",
     });
 
-    // 6️⃣ Success
     return NextResponse.json(invoice, { status: 201 });
-
   } catch (error) {
     console.error("Invoice create error:", error);
-
-    // 🔁 Duplicate invoice number
-    if (error.code === 11000) {
-      return NextResponse.json(
-        { message: "Invoice number already exists" },
-        { status: 409 }
-      );
-    }
-
     return NextResponse.json(
       { message: "Failed to create invoice" },
       { status: 500 }

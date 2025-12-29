@@ -14,7 +14,7 @@ const invoiceSchema = new mongoose.Schema(
     invoiceNumber: {
       type: String,
       required: true,
-      unique: true,
+      trim: true,
     },
 
     invoiceDate: {
@@ -55,7 +55,7 @@ const invoiceSchema = new mongoose.Schema(
       stateCode: String,
     },
 
-    /* ================= ITEMS (ROWS[]) ================= */
+    /* ================= ITEMS ================= */
     items: [
       {
         productId: mongoose.Schema.Types.ObjectId,
@@ -72,12 +72,28 @@ const invoiceSchema = new mongoose.Schema(
       },
     ],
 
-    /* ================= TRANSPORT ================= */
+    /* ================= TRANSPORT (✅ UPDATED) ================= */
     transport: {
-      mode: String,
-      vehicleNo: String,
-      noOfPackages: Number,
-      approxWeight: Number,
+      mode: {
+        type: String,
+        enum: ["By Road", "By Rikshaw", "By Rail", "By Air", "By Ship"],
+        default: "By Road",
+      },
+      vehicleNo: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      noOfPackages: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      approxWeight: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
     },
 
     /* ================= TOTALS ================= */

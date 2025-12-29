@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { OrbitProgress } from "react-loading-indicators";
 import { Plus, Trash2 } from "lucide-react";
 
 export default function CompleteInvoicePage({ invoiceNo }) {
+  const [savebutton, setsavebutton] = useState(true);
   const [savingInvoice, setSavingInvoice] = useState(false);
   const [transportMode, setTransportMode] = useState("By Road");
   const [vehicleNo, setVehicleNo] = useState("");
@@ -359,9 +360,12 @@ export default function CompleteInvoicePage({ invoiceNo }) {
 
     try {
       const invoiceData = {
-        invoiceNo,
+        invoiceNumber: invoiceNo,
+
+        // optional references
         customerId: selectedCustomerId,
-        customerName: selectedCustomer?.name, // Add customer name for reference
+        customerName: selectedCustomer?.name,
+
         items: rows
           .filter((row) => row.productId && row.qty > 0)
           .map((row) => ({
@@ -377,17 +381,31 @@ export default function CompleteInvoicePage({ invoiceNo }) {
             gstAmount: row.gstAmount,
             totalAmount: row.totalAmount,
           })),
-        transportMode,
-        vehicleNo: vehicleNo || "-",
-        noOfPackages: noOfPackages || "0",
-        approxWeight: approxWeight || "0",
-        taxableAmount: totals.taxable,
-        gstAmount: totals.gst,
-        grandTotal: totals.grand,
+
+        /* ✅ FIXED TRANSPORT STRUCTURE */
+        transport: {
+          mode: transportMode,
+          vehicleNo: vehicleNo || "",
+          noOfPackages: Number(noOfPackages) || 0,
+          approxWeight: Number(approxWeight) || 0,
+        },
+
+        /* ✅ FIXED TOTALS STRUCTURE */
+        totals: {
+          taxableAmount: totals.taxable,
+          cgst: 0,
+          sgst: 0,
+          igst: totals.gst,
+          roundOff: 0,
+          grandTotal: totals.grand,
+        },
+
         amountInWords: numberToWords(totals.grand),
-        date: new Date(),
-        billedTo, // Include billed to details
-        shippedTo, // Include shipped to details
+
+        invoiceDate: new Date(),
+
+        billedTo,
+        shippedTo,
       };
 
       const response = await axios.post(
@@ -400,6 +418,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
         // Optionally, you can redirect or reset form here
         // router.push('/invoices'); // If using Next.js router
       }
+      setsavebutton(false);
     } catch (error) {
       console.error("Error saving invoice:", error);
       const errorMessage =
@@ -414,6 +433,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
 
   return (
     <>
+      {/* <Toaster/> */}
       {/* ================= INVOICE HEADER ================= */}
       <div className="mx-4 my-4 w-auto border border-black bg-white text-sm">
         <div className="border-b border-black py-3 text-center text-base font-bold uppercase tracking-wide">
@@ -793,13 +813,15 @@ export default function CompleteInvoicePage({ invoiceNo }) {
       </div>
       {/* ================= ACTION BUTTONS ================= */}
       <div className="mx-4 my-4 flex gap-3 print:hidden">
-        <button
-          onClick={handleSaveInvoice}
-          disabled={savingInvoice}
-          className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed min-w-[140px]"
-        >
-          {savingInvoice ? "Saving..." : "Save Bill"}
-        </button>
+        {savebutton && (
+          <button
+            onClick={handleSaveInvoice}
+            disabled={savingInvoice}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed min-w-[140px]"
+          >
+            {savingInvoice ? "Saving..." : "Save Bill"}
+          </button>
+        )}
       </div>
     </>
   );
