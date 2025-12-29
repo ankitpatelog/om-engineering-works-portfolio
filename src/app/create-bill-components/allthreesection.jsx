@@ -342,43 +342,6 @@ export default function CompleteInvoicePage({ invoiceNo }) {
     return result;
   };
 
-  // 🚚 Transport validation
-  const validTransportModes = [
-    "By Road",
-    "By Rikshaw",
-    "By Rail",
-    "By Air",
-    "By Ship",
-  ];
-
-  if (!validTransportModes.includes(transportMode)) {
-    toast.error("Please select a valid Mode of Transport");
-    return;
-  }
-
-  if (transportMode !== "By Rikshaw") {
-    if (!vehicleNo.trim()) {
-      toast.error("Vehicle Number is required");
-      return;
-    }
-
-    // basic vehicle number sanity check
-    if (vehicleNo.length < 4) {
-      toast.error("Enter a valid Vehicle Number");
-      return;
-    }
-  }
-
-  if (!noOfPackages || Number(noOfPackages) <= 0) {
-    toast.error("No. of Packages must be greater than 0");
-    return;
-  }
-
-  if (!approxWeight || Number(approxWeight) <= 0) {
-    toast.error("Approx. Weight must be greater than 0");
-    return;
-  }
-
   const handleSaveInvoice = async () => {
     // Validation
     if (!selectedCustomerId) {
@@ -764,16 +727,9 @@ export default function CompleteInvoicePage({ invoiceNo }) {
               <input
                 type="text"
                 value={vehicleNo}
-                disabled={transportMode === "By Rikshaw"}
-                onChange={(e) =>
-                  setVehicleNo(e.target.value.toUpperCase().trim())
-                }
-                className="border px-2 py-1 text-sm flex-1 disabled:bg-gray-100"
-                placeholder={
-                  transportMode === "By Rikshaw"
-                    ? "Not Required"
-                    : "Enter vehicle number"
-                }
+                onChange={(e) => setVehicleNo(e.target.value)}
+                className="border px-2 py-1 text-sm flex-1"
+                placeholder="Enter vehicle number"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -781,9 +737,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
               <input
                 type="number"
                 value={noOfPackages}
-                onChange={(e) =>
-                  setNoOfPackages(Math.max(0, Number(e.target.value)))
-                }
+                onChange={(e) => setNoOfPackages(e.target.value)}
                 className="border px-2 py-1 text-sm w-24"
                 placeholder="0"
               />
@@ -793,9 +747,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
               <input
                 type="number"
                 value={approxWeight}
-                onChange={(e) =>
-                  setApproxWeight(Math.max(0, Number(e.target.value)))
-                }
+                onChange={(e) => setApproxWeight(e.target.value)}
                 className="border px-2 py-1 text-sm w-24"
                 placeholder="0"
                 step="0.01"
@@ -847,13 +799,6 @@ export default function CompleteInvoicePage({ invoiceNo }) {
           className="flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed min-w-[140px]"
         >
           {savingInvoice ? "Saving..." : "Save Bill"}
-        </button>
-
-        <button
-          onClick={handlePrintInvoice}
-          className="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-        >
-          Print Bill
         </button>
       </div>
     </>

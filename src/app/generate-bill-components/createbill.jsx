@@ -3,9 +3,8 @@
 import { useSession } from "next-auth/react";
 import { OrbitProgress } from "react-loading-indicators";
 import { Toaster } from "react-hot-toast";
-import InvoiceHeaderSection from "../../app/create-bill-components/companyheader";
-import BuyerConsigneeSection from "../create-bill-components/customersheader";
-import InvoiceItemsSection from "../create-bill-components/billitemsection";
+
+import CompleteInvoicePage from "../create-bill-components/allthreesection";
 
 export default function LandingPageBill() {
   //have to work on invoice no
@@ -35,9 +34,7 @@ export default function LandingPageBill() {
   return (
     <>
       <Toaster position="top-right" />
-      <InvoiceHeaderSection invoiceNo="INV-001" />
-      <BuyerConsigneeSection />
-      <InvoiceItemsSection />
+      <CompleteInvoicePage  />
     </>
   );
 }
