@@ -45,7 +45,7 @@ const customerSchema = new mongoose.Schema(
       ],
     },
 
-    // 📍 Address (used for both Billing & Shipping)
+    // 📍 Billing Address
     address: {
       type: String,
       required: true,
@@ -66,34 +66,27 @@ const customerSchema = new mongoose.Schema(
       max: 99,
     },
 
-    // 🚚 Shipping info (if different from billing)
+    // 🧾 PO Details
+    poNumber: {
+      type: String,
+      trim: true,
+    },
+
+    poDate: {
+      type: Date,
+    },
+
+    // 🚚 Shipping info (optional)
     shippedTo: {
-      name: {
-        type: String,
-        trim: true,
-      },
-      address: {
-        type: String,
-        trim: true,
-        maxlength: 300,
-      },
-      state: {
-        type: String,
-        trim: true,
-      },
-      stateCode: {
-        type: Number,
-        min: 1,
-        max: 99,
-      },
+      name: { type: String, trim: true },
+      address: { type: String, trim: true, maxlength: 300 },
+      state: { type: String, trim: true },
+      stateCode: { type: Number, min: 1, max: 99 },
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Prevent model overwrite error (Next.js hot reload)
 const Customer =
   mongoose.models.Customer || mongoose.model("Customer", customerSchema);
 

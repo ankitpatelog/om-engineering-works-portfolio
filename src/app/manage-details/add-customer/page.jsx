@@ -15,27 +15,76 @@ export default function AddCustomerForm() {
     address: "",
     state: "",
     stateCode: "",
-    shippedTo: "",
+    poNumber: "",
+    poDate: "",
+    shippedTo: {
+      name: "",
+      address: "",
+      state: "",
+      stateCode: "",
+    },
   });
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // handle nested shippedTo fields
+    if (name.startsWith("shippedTo.")) {
+      const key = name.split(".")[1];
+      setForm((prev) => ({
+        ...prev,
+        shippedTo: {
+          ...prev.shippedTo,
+          [key]: value,
+        },
+      }));
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // frontend validation
+    if (
+      !form.stateCode ||
+      isNaN(Number(form.stateCode)) ||
+      Number(form.stateCode) < 1
+    ) {
+      toast.error("Please enter valid state code");
+      return;
+    }
+
     setLoading(true);
 
-    try {
-      await toast.promise(axios.post("/api/company/addcustomers", form), {
-        loading: "Saving...",
-        success: "Data saved successfully",
-        error: (err) => err.response?.data?.message || "Could not save",
-      });
+    const payload = {
+      ...form,
+      stateCode: Number(form.stateCode),
+      shippedTo: {
+        ...form.shippedTo,
+        stateCode: form.shippedTo.stateCode
+          ? Number(form.shippedTo.stateCode)
+          : undefined,
+      },
+    };
 
+    try {
+      await toast.promise(
+        axios.post("/api/company/addcustomers", payload),
+        {
+          loading: "Saving...",
+          success: "Customer added successfully",
+          error: (err) =>
+            err.response?.data?.message || "Could not save",
+        }
+      );
+
+      // reset form after success
       setForm({
         name: "",
         phone: "",
@@ -44,10 +93,15 @@ export default function AddCustomerForm() {
         address: "",
         state: "",
         stateCode: "",
-        shippedTo: "",
+        poNumber: "",
+        poDate: "",
+        shippedTo: {
+          name: "",
+          address: "",
+          state: "",
+          stateCode: "",
+        },
       });
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add customer");
     } finally {
       setLoading(false);
     }
@@ -56,6 +110,7 @@ export default function AddCustomerForm() {
   return (
     <div className="w-full flex justify-center px-4 sm:px-6">
       <Toaster position="top-right" />
+
       <div className="w-full max-w-3xl mt-6 sm:mt-10 rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
         <h2 className="mb-4 text-center text-xl font-bold text-gray-900">
           Add Customer
@@ -65,65 +120,45 @@ export default function AddCustomerForm() {
           onSubmit={handleSubmit}
           className="grid grid-cols-1 gap-4 md:grid-cols-2"
         >
-          <Input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Customer Name *"
-          />
-          <Input
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="Phone Number *"
-          />
-          <Input
-            name="gstin"
-            value={form.gstin}
-            onChange={handleChange}
-            placeholder="GSTIN"
-          />
-          <Input
-            name="pan"
-            value={form.pan}
-            onChange={handleChange}
-            placeholder="PAN Number"
-          />
-          <Input
-            name="state"
-            value={form.state}
-            onChange={handleChange}
-            placeholder="State *"
-          />
-          <Input
-            name="stateCode"
-            value={form.stateCode}
-            onChange={handleChange}
-            placeholder="State Code *"
-          />
+          <Input name="name" value={form.name} onChange={handleChange} placeholder="Customer Name *" />
+          <Input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number *" />
+          <Input name="gstin" value={form.gstin} onChange={handleChange} placeholder="GSTIN" />
+          <Input name="pan" value={form.pan} onChange={handleChange} placeholder="PAN Number" />
+          <Input name="state" value={form.state} onChange={handleChange} placeholder="State *" />
+          <Input name="stateCode" value={form.stateCode} onChange={handleChange} placeholder="State Code *" />
+          <Input name="poNumber" value={form.poNumber} onChange={handleChange} placeholder="PO Number" />
+          <Input name="poDate" value={form.poDate} onChange={handleChange} type="date" />
 
           <textarea
             name="address"
             value={form.address}
             onChange={handleChange}
             placeholder="Billing Address *"
-            className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            className="col-span-full rounded-md border border-gray-300 px-3 py-2 text-sm"
             required
           />
 
+          <h3 className="col-span-full font-semibold text-gray-700">
+            Shipped To (optional)
+          </h3>
+
+          <Input name="shippedTo.name" value={form.shippedTo.name} onChange={handleChange} placeholder="Shipping Name" />
+          <Input name="shippedTo.state" value={form.shippedTo.state} onChange={handleChange} placeholder="Shipping State" />
+          <Input name="shippedTo.stateCode" value={form.shippedTo.stateCode} onChange={handleChange} placeholder="Shipping State Code" />
+
           <textarea
-            name="shippedTo"
-            value={form.shippedTo}
+            name="shippedTo.address"
+            value={form.shippedTo.address}
             onChange={handleChange}
-            placeholder="Shipped To Address (optional)"
-            className="col-span-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+            placeholder="Shipping Address"
+            className="col-span-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
 
-          <div className="col-span-full flex justify-center sm:justify-end">
+          <div className="col-span-full flex justify-end">
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto rounded-md bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-400 transition disabled:opacity-60"
+              className="rounded-md bg-amber-500 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-400 disabled:opacity-60"
             >
               {loading ? "Saving..." : "Save Customer"}
             </button>
@@ -134,16 +169,16 @@ export default function AddCustomerForm() {
   );
 }
 
-/* ---------- Reusable Input ---------- */
-function Input({ name, value, onChange, placeholder }) {
+function Input({ name, value, onChange, placeholder, type = "text" }) {
   return (
     <input
+      type={type}
       name={name}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-      required={placeholder.includes("*")}
+      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      required={placeholder?.includes("*")}
     />
   );
 }

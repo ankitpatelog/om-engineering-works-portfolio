@@ -68,6 +68,8 @@ export default function CustomerListSection() {
                     <Th>Phone</Th>
                     <Th>GSTIN</Th>
                     <Th>PAN</Th>
+                    <Th>PO No</Th>
+                    <Th>PO Date</Th>
                     <Th className="text-center">Edit</Th>
                   </tr>
                 </thead>
@@ -75,13 +77,13 @@ export default function CustomerListSection() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="5" className="p-4 text-center">
+                      <td colSpan="7" className="p-4 text-center">
                         Loading customers...
                       </td>
                     </tr>
                   ) : filteredCustomers.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="p-4 text-center">
+                      <td colSpan="7" className="p-4 text-center">
                         No customers found
                       </td>
                     </tr>
@@ -95,6 +97,12 @@ export default function CustomerListSection() {
                         <Td>{c.phone}</Td>
                         <Td>{c.gstin || "-"}</Td>
                         <Td>{c.pan || "-"}</Td>
+                        <Td>{c.poNumber || "-"}</Td>
+                        <Td>
+                          {c.poDate
+                            ? new Date(c.poDate).toLocaleDateString()
+                            : "-"}
+                        </Td>
                         <Td className="text-center">
                           <button
                             onClick={() => setEditCustomer(c)}

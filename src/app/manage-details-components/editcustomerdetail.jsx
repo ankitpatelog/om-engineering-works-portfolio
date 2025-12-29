@@ -12,6 +12,12 @@ export default function EditCustomerForm({ customer, onClose, onUpdated }) {
     gstin: customer.gstin || "",
     pan: customer.pan || "",
     address: customer.address || "",
+
+    // ✅ PO details added
+    poNumber: customer.poNumber || "",
+    poDate: customer.poDate
+      ? new Date(customer.poDate).toISOString().split("T")[0]
+      : "",
   });
 
   const [saving, setSaving] = useState(false);
@@ -28,7 +34,10 @@ export default function EditCustomerForm({ customer, onClose, onUpdated }) {
 
       await axios.put(
         `/api/company/editcustomerform/${customer._id}`,
-        form
+        {
+          ...form,
+          poDate: form.poDate ? new Date(form.poDate) : undefined,
+        }
       );
 
       toast.success("Customer updated successfully");
@@ -81,6 +90,23 @@ export default function EditCustomerForm({ customer, onClose, onUpdated }) {
               label="PAN"
               name="pan"
               value={form.pan}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* ✅ PO DETAILS SECTION (added only this) */}
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="PO Number"
+              name="poNumber"
+              value={form.poNumber}
+              onChange={handleChange}
+            />
+            <Input
+              label="PO Date"
+              name="poDate"
+              type="date"
+              value={form.poDate}
               onChange={handleChange}
             />
           </div>

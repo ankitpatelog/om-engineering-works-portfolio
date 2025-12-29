@@ -1,82 +1,61 @@
 import connectToDatabase from "@/library/mongoDb";
-import Product from "@/models/productModel";
+import Customer from "@/models/customerModel";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/library/auth";
 
 export async function POST(request) {
   try {
-    // 🔌 DB CONNECT
     await connectToDatabase();
 
-    // 🔐 SESSION CHECK
     const session = await getServerSession(authOptions);
     if (!session) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 📥 BODY
     const body = await request.json();
+    const { stateCode, shippedTo, poDate, ...rest } = body;
 
-    const {
-      name,
-      description,
-      hsnCode,
-      rate,
-      unit,
-      gstPercent,
-    } = body;
-
-    // ❗ REQUIRED FIELD CHECK
-    if (
-      !name ||
-      !description ||
-      !hsnCode ||
-      rate === undefined ||
-      gstPercent === undefined
-    ) {
+    const stateCodeNum = Number(stateCode);
+    if (!Number.isInteger(stateCodeNum) || stateCodeNum < 1 || stateCodeNum > 99) {
       return NextResponse.json(
-        { message: "Please fill all required fields" },
+        { message: "Please enter valid state code" },
         { status: 400 }
       );
     }
 
-    // 🚫 DUPLICATE PRODUCT (same name + user)
-    const existingProduct = await Product.findOne({
-      userId: session.user.id,
-      name,
-    });
+    // ✅ IMPORTANT FIX: ignore empty shippedTo
+    const hasShipping =
+      shippedTo &&
+      (shippedTo.name ||
+        shippedTo.address ||
+        shippedTo.state ||
+        shippedTo.stateCode);
 
-    if (existingProduct) {
-      return NextResponse.json(
-        { message: "Product already exists" },
-        { status: 409 }
-      );
-    }
-
-    // ✅ CREATE PRODUCT
-    const product = await Product.create({
+    const customer = await Customer.create({
       userId: session.user.id,
-      name,
-      description,
-      hsnCode,
-      rate,
-      unit,
-      gstPercent,
+      ...rest,
+      stateCode: stateCodeNum,
+      poDate: poDate ? new Date(poDate) : undefined,
+
+      shippedTo: hasShipping
+        ? {
+            ...shippedTo,
+            stateCode: shippedTo.stateCode
+              ? Number(shippedTo.stateCode)
+              : undefined,
+          }
+        : undefined,
     });
 
     return NextResponse.json(
-      { message: "Product created successfully", product },
+      { message: "Customer created successfully", customer },
       { status: 201 }
     );
   } catch (error) {
-    console.error("PRODUCT CREATE ERROR:", error);
-
+    console.error("Add customer error:", error);
     return NextResponse.json(
-      { message: error.message || "Internal Server Error" },
+      { message: error.message },
       { status: 500 }
     );
   }

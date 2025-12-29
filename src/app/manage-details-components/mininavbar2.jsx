@@ -13,7 +13,6 @@ export default function SubNavbar3() {
     setOpenMenu(openMenu === menu ? null : menu);
   };
 
-
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -29,6 +28,7 @@ export default function SubNavbar3() {
   return (
     <div className="w-full border-b border-gray-200 bg-gray-50">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-1">
+
         {/* LEFT – DROPDOWNS */}
         <div
           ref={menuRef}
@@ -97,6 +97,32 @@ export default function SubNavbar3() {
                   className="block w-full px-4 py-2 text-left hover:bg-gray-100"
                 >
                   View All Products
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Invoices (NEW) */}
+          <div className="relative">
+            <button
+              onClick={() => toggleMenu("invoices")}
+              className="text-gray-700 transition hover:text-amber-600"
+            >
+              Invoices ▾
+            </button>
+
+            {openMenu === "invoices" && (
+              <div className="absolute left-0 mt-2 w-48 rounded-md border bg-white shadow-md">
+                
+
+                <button
+                  onClick={() => {
+                    router.push("/manage-details/show-all-invoices");
+                    setOpenMenu(null);
+                  }}
+                  className="block w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  View All Invoices
                 </button>
               </div>
             )}

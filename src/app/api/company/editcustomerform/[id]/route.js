@@ -22,6 +22,9 @@ export async function PUT(request, context) {
         gstin: body.gstin,
         pan: body.pan,
         address: body.address,
+        // ✅ PO fields added
+        poNumber: body.poNumber,
+        poDate: body.poDate ? new Date(body.poDate) : undefined,
       },
       { new: true, runValidators: true }
     );

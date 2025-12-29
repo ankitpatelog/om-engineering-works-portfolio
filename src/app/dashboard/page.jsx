@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { OrbitProgress } from "react-loading-indicators";
-import CompanyDetailsRequired from "../generate-bill-components/addcomapnymsg"
+import CompanyDetailsRequired from "../generate-bill-components/addcomapnymsg";
+import LandingPageBillmain from "../../app/generate-bill-components/createbill"
 
 export default function LandingPageBill() {
   const { status } = useSession();
@@ -45,16 +46,16 @@ export default function LandingPageBill() {
     );
   }
 
-  return <>
-  <Toaster position="top-right" />
-  
-        {/* ✅ render ONLY after loading is finished */}
-        {!hasDetail ? (
-          <CompanyDetailsRequired />
-        ) : (
-          "have to show the bill generation form"
-        )}
-  
-  
-  </>;
+  return (
+    <>
+      <Toaster position="top-right" />
+
+      {/* ✅ render ONLY after loading is finished */}
+      {!hasDetail ? (
+        <CompanyDetailsRequired />
+      ) : (
+        <LandingPageBillmain/>
+      )}
+    </>
+  );
 }
