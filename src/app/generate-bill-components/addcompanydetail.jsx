@@ -13,7 +13,7 @@ export default function CompanyDetailsForm() {
     panno: "",
     address: "",
     state: "",
-    statecode: "",
+    stateCode: "",
     phone: "",
     email: "",
     invoicePrefix: "INVOICE NO:",
@@ -46,13 +46,11 @@ export default function CompanyDetailsForm() {
       {/* CENTER WRAPPER */}
       <div className="w-full flex justify-center px-4 sm:px-6">
         <div className="w-full max-w-4xl mt-6 sm:mt-10 rounded-lg border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-
           <h2 className="mb-4 text-center text-xl font-bold text-gray-900">
             Add Company Details
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* Company Name */}
             <input
               name="companyName"
@@ -107,13 +105,15 @@ export default function CompanyDetailsForm() {
               />
 
               <input
-                name="statecode"
+                name="stateCode"
                 placeholder="State Code (eg: 27) *"
-                value={form.statecode}
+                value={form.stateCode}
                 onChange={handleChange}
                 required
-                type="number"
-                className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{1,2}"
+                className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm"
               />
             </div>
 
@@ -158,7 +158,6 @@ export default function CompanyDetailsForm() {
                 {loading ? "Saving..." : "Save Company Details"}
               </button>
             </div>
-
           </form>
         </div>
       </div>

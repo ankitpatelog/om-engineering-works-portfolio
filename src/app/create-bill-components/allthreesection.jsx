@@ -369,7 +369,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
           panno: company.panno,
           address: company.address,
           state: company.state,
-          stateCode: company.stateCode,
+          stateCode: String(company.stateCode),
           phone: company.phone,
           email: company.email,
         },
@@ -485,7 +485,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
                   State Code
                 </td>
                 <td className="border border-black px-3 py-2">
-                  {company.statecode}
+                  {company.stateCode}
                 </td>
               </tr>
 

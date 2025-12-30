@@ -3,64 +3,81 @@
 import axios from "axios";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 export default function PrintOptionsModal({ open, invoice, onClose }) {
+  const [loading, setLoading] = useState(false);
   if (!open) return null;
 
-  const handlePrint = async (path) => {
+  const generateAndPrint = async (url, label) => {
+    if (loading) return;
+    setLoading(true);
+
+    // ✅ OPEN WINDOW IMMEDIATELY (prevents popup block)
+    const printWindow = window.open("", "_blank");
+
+    if (!printWindow) {
+      toast.error("Popup blocked. Please allow popups.");
+      setLoading(false);
+      return;
+    }
+
+    // Basic loading UI in new window
+    printWindow.document.write(`
+      <html>
+        <head><title>Generating PDF...</title></head>
+        <body style="display:flex;align-items:center;justify-content:center;font-family:sans-serif;">
+          <div>
+            <h3>Generating ${label} PDF…</h3>
+            <p>Please wait</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    const toastId = toast.loading(
+      `Generating ${label} PDF, please wait...`
+    );
+
     try {
-      const res = await axios.get(
-        `/api/company/invoice/print/${path}/${invoice._id}`,
-        { responseType: "blob" }
-      );
+      const res = await axios.get(url, {
+        responseType: "blob",
+      });
 
       if (res.status !== 200) {
-        toast.error("Failed to generate invoice");
+        toast.error("Failed to generate invoice", { id: toastId });
+        printWindow.close();
         return;
       }
 
       const blob = new Blob([res.data], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(blob);
+      const pdfUrl = URL.createObjectURL(blob);
 
-      // Try opening popup
-      const printWindow = window.open(url, "_blank");
+      // Replace temp page with PDF
+      printWindow.location.href = pdfUrl;
 
-      // 🔴 Fallback if popup blocked or device too slow
-      if (!printWindow) {
-        // fallback → open in same tab
-        window.location.href = url;
-        return;
-      }
-
-      let printed = false;
-
-      const safePrint = () => {
-        if (printed) return;
-        printed = true;
-
-        try {
-          printWindow.focus();
-          printWindow.print();
-        } catch (e) {
-          console.warn("Print fallback used");
-        }
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
       };
 
-      // ✅ Standard browsers
-      printWindow.onload = safePrint;
-
-     
-
+      toast.success(`${label} PDF ready`, { id: toastId });
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Print failed");
+      toast.error("Print failed", { id: toastId });
+      printWindow.close();
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
 
       <div className="relative z-50 w-96 rounded-lg bg-white p-5 shadow-xl">
         <button
@@ -80,29 +97,53 @@ export default function PrintOptionsModal({ open, invoice, onClose }) {
 
         <div className="space-y-2">
           <button
-            onClick={() => handlePrint("original")}
-            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100"
+            disabled={loading}
+            onClick={() =>
+              generateAndPrint(
+                `/api/company/invoice/print/original/${invoice._id}`,
+                "Original"
+              )
+            }
+            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50"
           >
             Original
           </button>
 
           <button
-            onClick={() => handlePrint("duplicate")}
-            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100"
+            disabled={loading}
+            onClick={() =>
+              generateAndPrint(
+                `/api/company/invoice/print/duplicate/${invoice._id}`,
+                "Duplicate"
+              )
+            }
+            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50"
           >
             Duplicate
           </button>
 
           <button
-            onClick={() => handlePrint("triplicate")}
-            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100"
+            disabled={loading}
+            onClick={() =>
+              generateAndPrint(
+                `/api/company/invoice/print/triplicate/${invoice._id}`,
+                "Triplicate"
+              )
+            }
+            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50"
           >
             Triplicate
           </button>
 
           <button
-            onClick={() => handlePrint("extra")}
-            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100"
+            disabled={loading}
+            onClick={() =>
+              generateAndPrint(
+                `/api/company/invoice/print/extra/${invoice._id}`,
+                "Extra"
+              )
+            }
+            className="w-full rounded border px-4 py-2 text-sm hover:bg-gray-100 disabled:opacity-50"
           >
             Extra
           </button>

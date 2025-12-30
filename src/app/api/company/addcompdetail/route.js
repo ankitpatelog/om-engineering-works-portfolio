@@ -2,16 +2,14 @@ import connectToDatabase from "@/library/mongoDb";
 import Company from "@/models/companyModel";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/library/auth"; // IMPORTANT
+import { authOptions } from "@/library/auth";
 
 export async function POST(request) {
   try {
     await connectToDatabase();
 
-    // ✅ GET SESSION
     const session = await getServerSession(authOptions);
-
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
@@ -26,24 +24,33 @@ export async function POST(request) {
       panno,
       address,
       state,
-      statecode,
+      stateCode,   // ✅ FIXED
       phone,
       email,
       invoicePrefix,
     } = body;
 
+    // ✅ BASIC REQUIRED CHECK
     if (
       !companyName ||
       !gstin ||
       !panno ||
       !address ||
       !state ||
-      !statecode ||
+      !stateCode ||
       !phone ||
       !email
     ) {
       return NextResponse.json(
         { message: "Please fill all required fields" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ STATE CODE VALIDATION (STRING)
+    if (!/^\d{1,2}$/.test(stateCode)) {
+      return NextResponse.json(
+        { message: "Please enter valid state code" },
         { status: 400 }
       );
     }
@@ -68,7 +75,7 @@ export async function POST(request) {
       panno,
       address,
       state,
-      statecode,
+      stateCode: String(stateCode), // ✅ ALWAYS STRING
       phone,
       email,
       invoicePrefix,

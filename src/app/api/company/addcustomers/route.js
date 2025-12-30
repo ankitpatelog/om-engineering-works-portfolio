@@ -9,22 +9,21 @@ export async function POST(request) {
     await connectToDatabase();
 
     const session = await getServerSession(authOptions);
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { stateCode, shippedTo, poDate, ...rest } = body;
 
-    const stateCodeNum = Number(stateCode);
-    if (!Number.isInteger(stateCodeNum) || stateCodeNum < 1 || stateCodeNum > 99) {
+    // ✅ stateCode validation (STRING)
+    if (!/^\d{1,2}$/.test(stateCode)) {
       return NextResponse.json(
         { message: "Please enter valid state code" },
         { status: 400 }
       );
     }
 
-    // ✅ IMPORTANT FIX: ignore empty shippedTo
     const hasShipping =
       shippedTo &&
       (shippedTo.name ||
@@ -35,14 +34,16 @@ export async function POST(request) {
     const customer = await Customer.create({
       userId: session.user.id,
       ...rest,
-      stateCode: stateCodeNum,
+
+      stateCode: String(stateCode),
+
       poDate: poDate ? new Date(poDate) : undefined,
 
       shippedTo: hasShipping
         ? {
             ...shippedTo,
             stateCode: shippedTo.stateCode
-              ? Number(shippedTo.stateCode)
+              ? String(shippedTo.stateCode)
               : undefined,
           }
         : undefined,

@@ -49,11 +49,10 @@ const companySchema = new mongoose.Schema(
       trim: true,
     },
 
-    statecode: {
-      type: Number,
+    stateCode: {
+      type: String,
       required: true,
-      min: 1,
-      max: 99,
+      match: [/^\d{1,2}$/, "Invalid state code"],
     },
 
     phone: {
