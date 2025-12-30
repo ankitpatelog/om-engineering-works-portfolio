@@ -344,7 +344,6 @@ export default function CompleteInvoicePage({ invoiceNo }) {
   };
 
   const handleSaveInvoice = async () => {
-    // Validation
     if (!selectedCustomerId) {
       toast.error("Please select a customer");
       return;
@@ -361,11 +360,25 @@ export default function CompleteInvoicePage({ invoiceNo }) {
     try {
       const invoiceData = {
         invoiceNumber: invoiceNo,
+        invoiceDate: new Date(),
 
-        // optional references
-        customerId: selectedCustomerId,
-        customerName: selectedCustomer?.name,
+        /* ✅ COMPANY SNAPSHOT (THIS WAS MISSING) */
+        company: {
+          companyName: company.companyName,
+          gstin: company.gstin,
+          panno: company.panno,
+          address: company.address,
+          state: company.state,
+          stateCode: company.stateCode,
+          phone: company.phone,
+          email: company.email,
+        },
 
+        /* ✅ CUSTOMER SNAPSHOT */
+        billedTo,
+        shippedTo,
+
+        /* ✅ ITEMS */
         items: rows
           .filter((row) => row.productId && row.qty > 0)
           .map((row) => ({
@@ -382,7 +395,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
             totalAmount: row.totalAmount,
           })),
 
-        /* ✅ FIXED TRANSPORT STRUCTURE */
+        /* ✅ TRANSPORT */
         transport: {
           mode: transportMode,
           vehicleNo: vehicleNo || "",
@@ -390,7 +403,7 @@ export default function CompleteInvoicePage({ invoiceNo }) {
           approxWeight: Number(approxWeight) || 0,
         },
 
-        /* ✅ FIXED TOTALS STRUCTURE */
+        /* ✅ TOTALS */
         totals: {
           taxableAmount: totals.taxable,
           cgst: 0,
@@ -401,31 +414,16 @@ export default function CompleteInvoicePage({ invoiceNo }) {
         },
 
         amountInWords: numberToWords(totals.grand),
-
-        invoiceDate: new Date(),
-
-        billedTo,
-        shippedTo,
+        status: "FINAL",
       };
 
-      const response = await axios.post(
-        "/api/company/saveinvoice",
-        invoiceData
-      );
+      await axios.post("/api/company/saveinvoice", invoiceData);
 
-      if (response.data) {
-        toast.success("Invoice saved successfully!");
-        // Optionally, you can redirect or reset form here
-        // router.push('/invoices'); // If using Next.js router
-      }
+      toast.success("Invoice saved successfully");
       setsavebutton(false);
     } catch (error) {
-      console.error("Error saving invoice:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to save invoice";
-      toast.error(errorMessage);
+      console.error(error);
+      toast.error("Failed to save invoice");
     } finally {
       setSavingInvoice(false);
     }
