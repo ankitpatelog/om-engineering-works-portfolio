@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
     console.log(JSON.stringify(invoice, null, 2));
 
     const html = `
-    <!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -376,10 +376,13 @@ export async function GET(request, { params }) {
         
         <div class="invoice-info">
             <div><strong>PAN No.</strong> : ${invoice.company.panno}</div>
-            <div><strong>STATE :</strong> ${
-              invoice.company.state
-            } <strong>STATE CODE :</strong> ${invoice.company.stateCode}</div>
-            <div style="text-align: right; border: 1px solid #000; padding: 5px 14px; font-weight: 600;"><strong>INVOICE NO. :</strong> ${
+           <div>
+  <strong>STATE :</strong>&nbsp;${invoice.company.state}
+  &nbsp;&nbsp;
+  <strong>STATE CODE :</strong>&nbsp;${invoice.company.stateCode}
+</div>
+
+            <div style="text-align: right; border: 1px solid #000; padding: 5px 14px; font-weight: 600;"><strong>INVOICE NO. </strong> ${
               invoice.invoiceNumber
             } <span style="margin-left: 20px;"><strong>DATE :</strong> ${new Date(
       invoice.invoiceDate
