@@ -357,7 +357,7 @@ export async function GET(request, { params }) {
         <div class="page-number">Page 1 of 1</div>
         
         <div class="header">
-            <div class="tax-invoice-title">TAX INVOICE</div>
+            <div class="tax-invoice-title">EXTRA INVOICE</div>
             <div class="original-stamp">Extra</div>
             <div class="gst-rule">(Issued as per Rule 1 of GOODS AND SERVICES TAX - INVOICE RULES, 2016)</div>
         </div>

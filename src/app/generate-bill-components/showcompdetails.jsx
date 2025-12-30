@@ -5,27 +5,30 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { OrbitProgress } from "react-loading-indicators";
 import { useEffect, useState } from "react";
+import EditCompanyDetailsForm from "../../app/generate-bill-components/editcompanydetail";
 
 export default function CompanyDetailsSection() {
+  const [isOpen, setIsOpen] = useState(false);
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCompany = async () => {
-      try {
-        const res = await axios.get("/api/company/getcompanydetails");
-        setCompany(res.data); // ✅ API returns company directly
-      } catch (error) {
-        toast.error("Failed to fetch company details");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ✅ moved OUTSIDE useEffect so it can be reused
+  const fetchCompany = async () => {
+    try {
+      const res = await axios.get("/api/company/getcompanydetails");
+      setCompany(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch company details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCompany();
   }, []);
 
-  // ✅ Loading state
+  /* ⏳ Loading */
   if (loading) {
     return (
       <div className="flex justify-center py-4">
@@ -34,15 +37,13 @@ export default function CompanyDetailsSection() {
             variant="track-disc"
             color="#ef9b3d"
             size="small"
-            text=""
-            textColor=""
           />
         </div>
       </div>
     );
   }
 
-  // ✅ Safety guard
+  /* 🛑 Safety */
   if (!company) return null;
 
   return (
@@ -62,6 +63,7 @@ export default function CompanyDetailsSection() {
           </div>
 
           <button
+            onClick={() => setIsOpen(true)}
             type="button"
             className="flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100"
           >
@@ -83,7 +85,7 @@ export default function CompanyDetailsSection() {
           <Info label="Email" value={company.email} />
           <Info
             label="State"
-            value={`${company.state} (${company.statecode})`}
+            value={`${company.state} (${company.stateCode})`}
           />
         </div>
 
@@ -97,6 +99,15 @@ export default function CompanyDetailsSection() {
           </p>
         </div>
       </section>
+
+      {/* 🪟 Edit Modal */}
+      {isOpen && (
+        <EditCompanyDetailsForm
+          company={company}
+          onClose={() => setIsOpen(false)}
+          onUpdated={fetchCompany}
+        />
+      )}
     </>
   );
 }

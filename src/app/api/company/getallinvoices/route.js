@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/library/mongoDb";
-import Invoice from "@/models/invoiceModel";
+import Invoice from "@/models/invoicesaveModel";
 
 export async function GET() {
   try {

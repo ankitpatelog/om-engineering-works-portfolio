@@ -1,184 +1,235 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
+import { Pencil, Printer, Download, Trash2 } from "lucide-react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { Pencil, Download, Printer } from "lucide-react";
-import { OrbitProgress } from "react-loading-indicators";
+import PrintOptionsModal from "../../generate-bill-components/PrintOptionsModal"; // ✅ ADD
 
-export default function CustomerListSection() {
-  const { status } = useSession();
-
-  const [customers, setCustomers] = useState([]);
+export default function BillHistorySection() {
+  /* 📦 DATA */
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editCustomer, setEditCustomer] = useState(null);
-  const [search, setSearch] = useState("");
 
-  // 🔹 FETCH CUSTOMERS
+  /* 🔍 FILTERS */
+  const [year, setYear] = useState("");
+  const [month, setMonth] = useState("");
+  const [customer, setCustomer] = useState("");
+  const [invoiceNo, setInvoiceNo] = useState("");
+
+  /* 🖨️ PRINT MODAL STATE (✅ ADD) */
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+
+  /* 📥 FETCH FROM DB */
   useEffect(() => {
-    if (status !== "authenticated") return;
-
-    const fetchCustomers = async () => {
+    const fetchInvoices = async () => {
       try {
-        const res = await axios.get("/api/company/getallinvoices");
-        setCustomers(res.data || []);
-      } catch (error) {
-        toast.error("Failed to load customers");
+        const res = await fetch("/api/company/getallinvoicee");
+        if (!res.ok) throw new Error("Fetch failed");
+
+        const data = await res.json();
+        setInvoices(data || []);
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCustomers();
-  }, [status]);
+    fetchInvoices();
+  }, []);
 
-  // 🔍 SEARCH FILTER
-  const filteredCustomers = useMemo(() => {
-    return customers.filter((c) =>
-      c.name?.toLowerCase().includes(search.toLowerCase())
+  /* 🗑️ DELETE HANDLER */
+  const handleremove = async (invoiceId) => {
+    const msg = confirm(
+      "Are you sure you want to delete this invoice?\nOnce deleted, it cannot be recovered."
     );
-  }, [customers, search]);
+    if (!msg) return;
 
-  // ⬇️ DOWNLOAD HANDLER
-  const handleDownload = (customer) => {
-    toast.success(`Download invoice for ${customer.name}`);
-    // later → call PDF download API
+    const msg2 = confirm("Press ok to agree one more time to delete");
+    if (!msg2) return;
+
+    try {
+      const res = await axios.delete(`/api/company/deleteinvoice/${invoiceId}`);
+      setInvoices((prev) => prev.filter((inv) => inv._id !== invoiceId));
+
+      if (res.status === 200) toast.success("Invoice deleted");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      toast.error("Failed to delete invoice");
+    }
   };
 
-  // 🖨 PRINT HANDLER
-  const handlePrint = (customer) => {
-    toast.success(`Print invoice for ${customer.name}`);
-    // later → window.print() or print PDF
-  };
+  /* 🧠 FILTER LOGIC */
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((inv) => {
+      const date = new Date(inv.invoiceDate);
+      const invYear = date.getFullYear().toString();
+      const invMonth = date.toLocaleString("default", { month: "long" });
 
-  /* ⏳ LOADING SESSION */
-  if (status === "loading") {
+      return (
+        (!year || invYear === year) &&
+        (!month || invMonth === month) &&
+        (!customer ||
+          inv.billedTo?.name?.toLowerCase().includes(customer.toLowerCase())) &&
+        (!invoiceNo ||
+          inv.invoiceNumber?.toLowerCase().includes(invoiceNo.toLowerCase()))
+      );
+    });
+  }, [invoices, year, month, customer, invoiceNo]);
+
+  if (loading) {
     return (
-      <div className="flex justify-center py-10">
-        <OrbitProgress variant="track-disc" color="#ef9b3d" size="small" />
-      </div>
+      <div className="py-10 text-center text-gray-500">Loading invoices...</div>
     );
   }
 
-  /* 🔐 NOT LOGGED IN */
-  if (status === "unauthenticated") {
-    return (
-      <div className="py-10 text-center text-gray-500">
-        Please login to view customers.
-      </div>
-    );
-  }
-
-  /* ✅ MAIN UI */
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster />
 
-      <div className="w-full px-4 sm:px-6">
-        <div className="mx-auto mt-6 max-w-7xl rounded-lg border bg-white p-4 sm:p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-bold text-gray-900">
-            Customer List
-          </h2>
+      <div className="mx-4 my-6 rounded-lg border border-gray-300 bg-white p-5">
+        <h2 className="mb-4 text-lg font-semibold">Bill History</h2>
 
-          {/* 🔍 SEARCH */}
+        {/* 🔍 FILTER SECTION */}
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+          <select
+            className="rounded border px-3 py-2 text-sm"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+          >
+            <option value="">All Years</option>
+            {[
+              ...new Set(
+                invoices.map((i) =>
+                  new Date(i.invoiceDate).getFullYear().toString()
+                )
+              ),
+            ].map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="rounded border px-3 py-2 text-sm"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+          >
+            <option value="">All Months</option>
+            {[
+              "January",
+              "February",
+              "March",
+              "April",
+              "May",
+              "June",
+              "July",
+              "August",
+              "September",
+              "October",
+              "November",
+              "December",
+            ].map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
-            placeholder="Search by customer name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mb-4 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200"
+            placeholder="Customer Name"
+            className="rounded border px-3 py-2 text-sm"
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
           />
 
-          <div className="relative overflow-x-auto">
-            <div className="max-h-[260px] overflow-y-auto rounded-md border">
-              <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 bg-gray-100">
-                  <tr>
-                    <Th>Name</Th>
-                    <Th>Phone</Th>
-                    <Th>GSTIN</Th>
-                    <Th>PAN</Th>
-                    <Th className="text-center">Actions</Th>
-                  </tr>
-                </thead>
+          <input
+            type="text"
+            placeholder="Invoice No"
+            className="rounded border px-3 py-2 text-sm"
+            value={invoiceNo}
+            onChange={(e) => setInvoiceNo(e.target.value)}
+          />
+        </div>
 
-                <tbody>
-                  {loading ? (
-                    <tr>
-                      <td colSpan="5" className="p-4 text-center">
-                        Loading customers...
-                      </td>
-                    </tr>
-                  ) : filteredCustomers.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="p-4 text-center">
-                        No customers found
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredCustomers.map((c) => (
-                      <tr key={c._id} className="border-t hover:bg-gray-50">
-                        <Td>{c.name}</Td>
-                        <Td>{c.phone}</Td>
-                        <Td>{c.gstin || "-"}</Td>
-                        <Td>{c.pan || "-"}</Td>
-                        <Td className="text-center">
-                          <div className="flex justify-center gap-2">
-                            {/* ⬇️ DOWNLOAD */}
-                            <button
-                              onClick={() => handleDownload(c)}
-                              className="rounded-md p-1 text-blue-600 hover:bg-blue-100"
-                              title="Download Invoice"
-                            >
-                              <Download size={16} />
-                            </button>
+        {/* 📜 TABLE */}
+        <div className="max-h-[420px] overflow-y-auto border">
+          <table className="w-full border-collapse text-sm">
+            <thead className="sticky top-0 bg-gray-100">
+              <tr>
+                <th className="border px-3 py-2 text-left">Invoice No</th>
+                <th className="border px-3 py-2 text-left">Customer</th>
+                <th className="border px-3 py-2 text-center">Date</th>
+                <th className="border px-3 py-2 text-center">Status</th>
+                <th className="border px-3 py-2 text-center">Actions</th>
+              </tr>
+            </thead>
 
-                            {/* 🖨 PRINT */}
-                            <button
-                              onClick={() => handlePrint(c)}
-                              className="rounded-md p-1 text-green-600 hover:bg-green-100"
-                              title="Print Invoice"
-                            >
-                              <Printer size={16} />
-                            </button>
+            <tbody>
+              {filteredInvoices.map((inv) => (
+                <tr key={inv._id} className="hover:bg-gray-50">
+                  <td className="border px-3 py-2 font-medium">
+                    {inv.invoiceNumber}
+                  </td>
 
-                            {/* ✏️ EDIT */}
-                            <button
-                              onClick={() => setEditCustomer(c)}
-                              className="rounded-md p-1 text-amber-600 hover:bg-amber-100"
-                              title="Edit Customer"
-                            >
-                              <Pencil size={16} />
-                            </button>
-                          </div>
-                        </Td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                  <td className="border px-3 py-2">
+                    <div className="font-semibold">{inv.billedTo?.name}</div>
+                    <div className="text-xs text-gray-600">
+                      GSTIN: {inv.billedTo?.gstin || "—"}
+                    </div>
+                  </td>
+
+                  <td className="border px-3 py-2 text-center">
+                    {new Date(inv.invoiceDate).toLocaleDateString()}
+                  </td>
+
+                  <td className="border px-3 py-2 text-center">{inv.status}</td>
+
+                  <td className="border px-3 py-2">
+                    <div className="flex justify-center gap-2">
+                      <button className="rounded border p-1">
+                        <Pencil size={16} />
+                      </button>
+
+                      <button
+                        className="rounded border p-1"
+                        onClick={() => {
+                          setSelectedInvoice(inv);
+                          setPrintModalOpen(true);
+                        }}
+                      >
+                        <Printer size={16} />
+                      </button>
+
+                      <button className="rounded border p-1">
+                        <Download size={16} />
+                      </button>
+
+                      <button
+                        onClick={() => handleremove(inv._id)}
+                        className="rounded border p-1 hover:bg-red-100 text-red-600"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* 🖨️ PRINT MODAL */}
+      <PrintOptionsModal
+        open={printModalOpen}
+        invoice={selectedInvoice}
+        onClose={() => setPrintModalOpen(false)}
+      />
     </>
-  );
-}
-
-/* ---------- TABLE HELPERS ---------- */
-function Th({ children, className = "" }) {
-  return (
-    <th className={`px-3 py-2 text-left font-semibold ${className}`}>
-      {children}
-    </th>
-  );
-}
-
-function Td({ children, className = "" }) {
-  return (
-    <td className={`px-3 py-1.5 text-gray-700 ${className}`}>
-      {children}
-    </td>
   );
 }

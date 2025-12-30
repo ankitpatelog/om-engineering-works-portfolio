@@ -85,7 +85,7 @@ export default function Navbar() {
         {/* RIGHT – DESKTOP ACTIONS */}
         <div className="hidden md:flex items-center gap-4">
           <a
-            href="/brochure.pdf"
+            href="https://www.dropbox.com/scl/fi/hbqs6vyt5ml2500nl3dz4/OM_ENGG_Supplier_Schedule.xlsx?rlkey=yapjr1sqhos1qye5sqbc7y0qx&st=8xg1dvfv&dl=1"
             className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800
             hover:border-amber-500 hover:text-amber-600 transition-all"
           >
