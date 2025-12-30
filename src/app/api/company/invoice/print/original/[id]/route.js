@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
     console.log(JSON.stringify(invoice, null, 2));
 
     const html = `
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -63,63 +63,77 @@ export async function GET(request, { params }) {
         
         .header {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             position: relative;
         }
         
         .header h1 {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 3px 0;
-            letter-spacing: 1px;
+            font-size: 28px;
+            font-weight: 900;
+            margin: 4px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
         
         .tax-invoice-title {
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 900;
             text-align: center;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             text-decoration: underline;
+            letter-spacing: 1px;
         }
         
         .original-stamp {
             position: absolute;
             right: 0;
             top: 0;
-            border: 2px solid #000;
-            padding: 4px 18px;
-            font-weight: bold;
-            font-size: 13px;
+            border: 2.5px solid #000;
+            padding: 5px 20px;
+            font-weight: 900;
+            font-size: 14px;
         }
         
         .gst-rule {
-            font-size: 9px;
+            font-size: 10px;
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            font-weight: 500;
         }
         
         .company-address {
             text-align: center;
-            font-size: 10px;
-            margin-bottom: 6px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            line-height: 1.4;
         }
         
         .company-details {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 500;
         }
         
         .company-details div {
             flex: 1;
         }
         
+        .company-details strong {
+            font-weight: 700;
+        }
+        
         .invoice-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        
+        .invoice-info strong {
+            font-weight: 700;
         }
         
         table {
@@ -134,43 +148,44 @@ export async function GET(request, { params }) {
         
         th {
             background-color: #d3d3d3;
-            padding: 5px 4px;
+            padding: 6px 4px;
             text-align: center;
-            font-weight: bold;
-            font-size: 10px;
+            font-weight: 700;
+            font-size: 11px;
         }
         
         td {
-            padding: 5px 4px;
-            font-size: 10px;
+            padding: 6px 5px;
+            font-size: 11px;
         }
         
         .party-details-table td {
-            padding: 5px 6px;
+            padding: 6px 8px;
             vertical-align: top;
         }
         
         .party-details-table .label {
-            font-weight: bold;
-            width: 85px;
+            font-weight: 700;
+            width: 90px;
         }
         
         .party-details-header {
             background-color: #d3d3d3;
-            font-weight: bold;
+            font-weight: 700;
             text-align: center;
-            padding: 5px;
+            padding: 6px;
+            font-size: 11px;
         }
         
         .items-table td {
             text-align: center;
-            padding: 6px 3px;
+            padding: 7px 4px;
         }
         
         .items-table td:nth-child(2) {
             text-align: left;
-            padding-left: 6px;
-            padding-right: 6px;
+            padding-left: 8px;
+            padding-right: 8px;
         }
         
         .items-table td:nth-child(1) {
@@ -214,7 +229,7 @@ export async function GET(request, { params }) {
             flex: 1.2;
             border: 1px solid #000;
             border-top: none;
-            padding: 6px 8px;
+            padding: 8px 10px;
         }
         
         .transport-right {
@@ -226,20 +241,22 @@ export async function GET(request, { params }) {
         
         .transport-row {
             display: flex;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
+            font-size: 11px;
         }
         
         .transport-label {
-            font-weight: bold;
-            width: 140px;
+            font-weight: 700;
+            width: 145px;
             flex-shrink: 0;
         }
         
         .amount-row {
             display: flex;
             justify-content: space-between;
-            padding: 5px 8px;
+            padding: 6px 10px;
             border-bottom: 1px solid #000;
+            font-size: 11px;
         }
         
         .amount-row:last-child {
@@ -247,19 +264,19 @@ export async function GET(request, { params }) {
         }
         
         .amount-label {
-            font-weight: bold;
+            font-weight: 700;
         }
         
         .grand-total-row {
             background-color: #f0f0f0;
-            font-weight: bold;
-            font-size: 11px;
+            font-weight: 700;
+            font-size: 12px;
         }
         
         .amount-in-words {
             border: 1px solid #000;
             border-top: none;
-            padding: 8px 10px;
+            padding: 10px 12px;
             font-size: 11px;
         }
         
@@ -267,20 +284,20 @@ export async function GET(request, { params }) {
             display: flex;
             border: 1px solid #000;
             border-top: none;
-            min-height: 180px;
+            min-height: 190px;
         }
         
         .declaration-left {
             flex: 2;
-            padding: 10px 12px;
-            font-size: 10px;
-            line-height: 1.6;
+            padding: 12px 14px;
+            font-size: 10.5px;
+            line-height: 1.65;
         }
         
         .declaration-right {
             flex: 1;
             border-left: 1px solid #000;
-            padding: 12px;
+            padding: 14px;
             text-align: center;
             display: flex;
             flex-direction: column;
@@ -288,32 +305,36 @@ export async function GET(request, { params }) {
         }
         
         .company-name-signature {
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 900;
             margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         
         .signature-space {
             margin-top: auto;
-            padding-top: 60px;
+            padding-top: 65px;
             text-align: center;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
         }
         
         .page-number {
             text-align: right;
-            font-size: 10px;
-            margin-bottom: 5px;
+            font-size: 11px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
         
         .total-row {
-            font-weight: bold;
+            font-weight: 700;
             background-color: #f5f5f5;
         }
         
         .total-row td {
-            padding: 6px 8px;
+            padding: 7px 10px;
+            font-size: 11px;
         }
         
         @media print {
@@ -342,19 +363,27 @@ export async function GET(request, { params }) {
         </div>
         
         <div class="header">
-            <h1>om engineering works</h1>
-            <div class="company-address">t No. 21, MIDC Industrial Area, Andher</div>
+            <h1>${invoice.company.companyName}</h1>
+            <div class="company-address">${invoice.company.address}</div>
         </div>
         
         <div class="company-details">
-            <div><strong>GST No.</strong> : 27ABCDE1234F1Z5</div>
-            <div style="text-align: center;"><strong>M.No.</strong> : 9560419817, <strong>Email</strong> - omengg21@gmail.com</div>
+            <div><strong>GST No.</strong> : ${invoice.company.gstin}</div>
+            <div style="text-align: center;"><strong>M.No.</strong> : ${
+              invoice.company.phone
+            }, <strong>Email</strong> - ${invoice.company.email}</div>
         </div>
         
         <div class="invoice-info">
-            <div><strong>PAN No.</strong> : ABCDE1234F</div>
-            <div><strong>STATE :</strong> Haryana <strong>STATE CODE :</strong> undefined</div>
-            <div style="text-align: right; border: 1px solid #000; padding: 4px 12px;"><strong>INVOICE NO. :</strong> INV/2025-26/001 <span style="margin-left: 20px;"><strong>DATE :</strong> 30/12/2025</span></div>
+            <div><strong>PAN No.</strong> : ${invoice.company.panno}</div>
+            <div><strong>STATE :</strong> ${
+              invoice.company.state
+            } <strong>STATE CODE :</strong> ${invoice.company.stateCode}</div>
+            <div style="text-align: right; border: 1px solid #000; padding: 5px 14px; font-weight: 600;"><strong>INVOICE NO. :</strong> ${
+              invoice.invoiceNumber
+            } <span style="margin-left: 20px;"><strong>DATE :</strong> ${new Date(
+      invoice.invoiceDate
+    ).toLocaleDateString("en-GB")}</span></div>
         </div>
         
         <table class="party-details-table">
@@ -364,39 +393,47 @@ export async function GET(request, { params }) {
             </tr>
             <tr>
                 <td class="label">Name</td>
-                <td><strong>: Ankit Patel</strong></td>
+                <td><strong>: ${invoice.billedTo.name}</strong></td>
                 <td class="label">Name</td>
-                <td><strong>: ABC Manufacturing – Warehouse</strong></td>
+                <td><strong>: ${invoice.shippedTo.name}</strong></td>
             </tr>
             <tr>
                 <td class="label">Address</td>
-                <td><strong>:</strong> FLAT NO. C-204 TOWER C HABITAT 78 SECTOR 78</td>
+                <td><strong>:</strong> ${invoice.billedTo.address}</td>
                 <td class="label">Address</td>
-                <td><strong>:</strong> FLAT NO. C-204 TOWER C HABITAT 78 SECTOR 78</td>
+                <td><strong>:</strong> ${invoice.shippedTo.address}</td>
             </tr>
             <tr>
                 <td class="label">GST No.</td>
-                <td><strong>: 24ABCDE1234F1Z9</strong></td>
+                <td><strong>: ${invoice.billedTo.gstin}</strong></td>
                 <td class="label">GST No.</td>
-                <td><strong>: 24ABCDE1234F1Z9</strong></td>
+                <td><strong>: ${invoice.shippedTo.gstin}</strong></td>
             </tr>
             <tr>
                 <td class="label">PAN No.</td>
-                <td><strong>: ABCDE1234F</strong></td>
+                <td><strong>: ${invoice.billedTo.pan}</strong></td>
                 <td class="label">PAN No.</td>
-                <td><strong>: ABCDE1234F</strong></td>
+                <td><strong>: ${invoice.shippedTo.pan || ""}</strong></td>
             </tr>
             <tr>
                 <td class="label">State</td>
-                <td><strong>: Haryana</strong> &nbsp;&nbsp;&nbsp; <strong>State Code :</strong> 2</td>
+                <td><strong>: ${
+                  invoice.billedTo.state
+                }</strong> &nbsp;&nbsp;&nbsp; <strong>State Code :</strong> ${
+      invoice.billedTo.stateCode
+    }</td>
                 <td class="label">State</td>
-                <td><strong>: Haryana</strong> &nbsp;&nbsp;&nbsp; <strong>State Code :</strong> 2</td>
+                <td><strong>: ${
+                  invoice.shippedTo.state
+                }</strong> &nbsp;&nbsp;&nbsp; <strong>State Code :</strong> ${
+      invoice.shippedTo.stateCode
+    }</td>
             </tr>
             <tr>
                 <td class="label">P. O. No.:-</td>
-                <td>PO-2025-21</td>
+                <td>${invoice.billedTo.poNo || ""}</td>
                 <td class="label">P. O. Date :-</td>
-                <td>31/12/2025</td>
+                <td>${invoice.billedTo.poDate || ""}</td>
             </tr>
         </table>
         
@@ -418,21 +455,36 @@ export async function GET(request, { params }) {
                 </tr>
             </thead>
             <tbody>
+                ${invoice.items
+                  .map(
+                    (item, index) => `
                 <tr>
-                    <td>1</td>
-                    <td>Ankit Patel<br>this is me not product</td>
-                    <td>6546464</td>
-                    <td>64654.00</td>
-                    <td>455</td>
-                    <td>Nos.</td>
-                    <td>29,41,7,570.00</td>
-                    <td>28</td>
-                    <td>8236919.60</td>
+                    <td>${index + 1}</td>
+                    <td>${item.productName}${
+                      item.description ? "<br>" + item.description : ""
+                    }</td>
+                    <td>${item.hsn}</td>
+                    <td>${item.rate.toFixed(2)}</td>
+                    <td>${item.qty.toLocaleString()}</td>
+                    <td>${item.unit}</td>
+                    <td>${item.taxableAmount.toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}</td>
+                    <td>${item.gstPercent}</td>
+                    <td>${item.gstAmount.toFixed(2)}</td>
                 </tr>
+                `
+                  )
+                  .join("")}
                 <tr class="total-row">
                     <td colspan="6" style="text-align: right; padding-right: 10px;"><strong>Total:-</strong></td>
-                    <td style="text-align: right; padding-right: 10px;"><strong>29417570.00</strong></td>
-                    <td colspan="2" style="text-align: right; padding-right: 10px;"><strong>8236919.60</strong></td>
+                    <td style="text-align: right; padding-right: 10px;"><strong>${invoice.totals.taxableAmount.toFixed(
+                      2
+                    )}</strong></td>
+                    <td colspan="2" style="text-align: right; padding-right: 10px;"><strong>${invoice.totals.igst.toFixed(
+                      2
+                    )}</strong></td>
                 </tr>
             </tbody>
         </table>
@@ -441,47 +493,49 @@ export async function GET(request, { params }) {
             <div class="transport-left">
                 <div class="transport-row">
                     <span class="transport-label">Mode of Transport</span>
-                    <span>: By Road</span>
+                    <span>: ${invoice.transport.mode}</span>
                 </div>
                 <div class="transport-row">
-                    <span class="transport-label">Vehicale No.</span>
-                    <span>: 44-4-44-4</span>
+                    <span class="transport-label">Vehicle No.</span>
+                    <span>: ${invoice.transport.vehicleNo}</span>
                 </div>
                 <div class="transport-row">
                     <span class="transport-label">NO. OF PACKAGE</span>
-                    <span>: 44</span>
+                    <span>: ${invoice.transport.noOfPackages}</span>
                 </div>
                 <div class="transport-row">
                     <span class="transport-label">Approx. Wt. (Kgs)</span>
-                    <span>: 22</span>
+                    <span>: ${invoice.transport.approxWeight}</span>
                 </div>
             </div>
             <div class="transport-right">
                 <div class="amount-row">
                     <span class="amount-label">CGST</span>
-                    <span>0.00</span>
+                    <span>${invoice.totals.cgst.toFixed(2)}</span>
                 </div>
                 <div class="amount-row">
                     <span class="amount-label">SGST</span>
-                    <span>0.00</span>
+                    <span>${invoice.totals.sgst.toFixed(2)}</span>
                 </div>
                 <div class="amount-row">
                     <span class="amount-label">IGST</span>
-                    <span>8236919.60</span>
+                    <span>${invoice.totals.igst.toFixed(2)}</span>
                 </div>
                 <div class="amount-row">
                     <span class="amount-label">+/-R/Off. :</span>
-                    <span>0.00</span>
+                    <span>${invoice.totals.roundOff.toFixed(2)}</span>
                 </div>
                 <div class="amount-row grand-total-row">
                     <span class="amount-label">Grand Total (Rs.) : -</span>
-                    <span>37654489.60</span>
+                    <span>${invoice.totals.grandTotal.toFixed(2)}</span>
                 </div>
             </div>
         </div>
         
         <div class="amount-in-words">
-            <strong>Total Invoice Value (in words) Rs.</strong> Three Crore Seventy Six Lakh Fifty Four Thousand Four Hundred Eighty Nine and Sixty Paise
+            <strong>Total Invoice Value (in words) Rs.</strong> ${
+              invoice.amountInWords
+            }
         </div>
         
         <div class="amount-in-words" style="border-top: 1px solid #000;">
@@ -490,9 +544,7 @@ export async function GET(request, { params }) {
         
         <div class="declaration-section">
             <div class="declaration-left">
-                <strong>Declaration :</strong> Certified that particulars given above are true & correct under GST<br>
-                Act 2017 and amount indicated represents the price actually charged and that<br>
-                there is no flow of additional consideration directly or indirectly from buyer.<br><br>
+                <strong>Declaration :</strong> Certified that particulars given above are true & correct under GST Act 2017 and amount indicated represents the price actually charged and that there is no flow of additional consideration directly or indirectly from buyer.<br><br>
                 1. Information of rejection must be sent within 7 days from the delivery of material.<br>
                 2. Rejection if any will be accepted back in condition in which material is supplied.<br>
                 3. Interest @ 24% P.A. Will be charged on invoice if not paid due date.<br>
@@ -500,7 +552,7 @@ export async function GET(request, { params }) {
             </div>
             <div class="declaration-right">
                 <div class="company-name-signature">
-                    For om engineering works
+                    For ${invoice.company.companyName}
                 </div>
                 <div class="signature-space">
                     (Authorised Signatory)
