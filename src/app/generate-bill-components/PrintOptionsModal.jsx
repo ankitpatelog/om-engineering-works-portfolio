@@ -22,16 +22,34 @@ export default function PrintOptionsModal({ open, invoice, onClose }) {
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
 
-      const printWindow = window.open(url);
+      // Try opening popup
+      const printWindow = window.open(url, "_blank");
 
+      // 🔴 Fallback if popup blocked or device too slow
       if (!printWindow) {
-        toast.error("Popup blocked. Please allow popups and try again.");
+        // fallback → open in same tab
+        window.location.href = url;
         return;
       }
 
-      printWindow.onload = () => {
-        printWindow.print();
+      let printed = false;
+
+      const safePrint = () => {
+        if (printed) return;
+        printed = true;
+
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch (e) {
+          console.warn("Print fallback used");
+        }
       };
+
+      // ✅ Standard browsers
+      printWindow.onload = safePrint;
+
+     
 
       onClose();
     } catch (err) {
