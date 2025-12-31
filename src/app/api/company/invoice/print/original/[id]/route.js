@@ -1,11 +1,17 @@
-import puppeteer from "puppeteer";
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+
 import connectToDatabase from "@/library/mongoDb";
 import Invoice from "@/models/invoicesaveModel";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   try {
-    const { id } = await params;
+    // ✅ correct params usage
+    const { id } = params;
 
     await connectToDatabase();
 
@@ -17,6 +23,7 @@ export async function GET(request, { params }) {
       );
     }
 
+    // ✅ Vercel-compatible Chromium
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
@@ -25,7 +32,6 @@ export async function GET(request, { params }) {
     });
 
     const page = await browser.newPage();
-    console.log(JSON.stringify(invoice, null, 2));
 
     const html = `
      <!DOCTYPE html>
@@ -569,12 +575,20 @@ export async function GET(request, { params }) {
 </html>
 `;
 
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // ✅ safer than networkidle0 on Vercel
+    await page.setContent(html, {
+      waitUntil: "domcontentloaded",
+    });
 
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "10mm", bottom: "10mm" },
+      margin: {
+        top: "10mm",
+        bottom: "10mm",
+        left: "10mm",
+        right: "10mm",
+      },
     });
 
     await browser.close();
