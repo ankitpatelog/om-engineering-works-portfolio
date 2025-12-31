@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
+import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function Navbar() {
   <Toaster />;
@@ -11,44 +12,30 @@ export default function Navbar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
+  // 🔹 NEW STATE (ONLY ADDITION)
+  const [showInfo, setShowInfo] = useState(null); // "mail" | "phone" | null
+
   const navItems = [
     { label: "Our Work", id: "ourwork" },
     { label: "About Us", id: "aboutus" },
     { label: "Contact Us", id: "contactus" },
   ];
 
-  // Smooth scroll function (NO PAGE CHANGE)
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
-      setOpen(false); // close mobile menu
+      setOpen(false);
     }
   };
 
   const handlebill = () => {
     if (session) {
       toast.success("Welcome");
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 500);
+      setTimeout(() => router.push("/dashboard"), 500);
     } else {
-      toast.success("Please log in generate bills", {
-        style: {
-          border: "1px solid #F59E0B",
-          padding: "5px",
-          color: "#92400E", 
-          background: "#FFFBEB", 
-        },
-        iconTheme: {
-          primary: "#F59E0B", 
-          secondary: "#FFFBEB",
-        },
-      });
-
-      setTimeout(() => {
-        router.push("/login");
-      }, 500);
+      toast.success("Please log in generate bills");
+      setTimeout(() => router.push("/login"), 500);
     }
   };
 
@@ -83,22 +70,71 @@ export default function Navbar() {
         </ul>
 
         {/* RIGHT – DESKTOP ACTIONS */}
-        <div className="hidden md:flex items-center gap-4">
-          <a
-            href="https://www.dropbox.com/scl/fi/hbqs6vyt5ml2500nl3dz4/OM_ENGG_Supplier_Schedule.xlsx?rlkey=yapjr1sqhos1qye5sqbc7y0qx&st=8xg1dvfv&dl=1"
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800
-            hover:border-amber-500 hover:text-amber-600 transition-all"
-          >
-            Download Brochure
-          </a>
+        <div className="hidden md:flex flex-col items-end gap-1">
+          <div className="flex items-center gap-4">
+            <a
+              href="https://www.dropbox.com/scl/fi/mo4ry9eq4lb5wiai24438/OM_Engineering_Works_Profile.pdf?dl=1"
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-800
+              hover:border-amber-500 hover:text-amber-600 transition-all"
+            >
+              Om Engg. Profile
+            </a>
 
-          <button
-            onClick={handlebill}
-            className="rounded-md bg-amber-500 px-5 py-2 text-sm font-semibold text-white
-            shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all"
-          >
-            Generate Bill
-          </button>
+            <button
+              onClick={handlebill}
+              className="rounded-md bg-amber-500 px-5 py-2 text-sm font-semibold text-white
+              shadow-md shadow-amber-500/20 hover:bg-amber-400 transition-all"
+            >
+              Generate Bill
+            </button>
+          </div>
+
+          {/* 🔹 ICONS BELOW BUTTONS */}
+          <div className="relative flex gap-3 text-gray-500 mt-1">
+            {/* MAIL */}
+            <button
+              type="button"
+              onClick={() =>
+                setShowInfo(showInfo === "mail" ? null : "mail")
+              }
+              title="Email"
+            >
+              <Mail size={14} className="hover:text-amber-600 transition" />
+            </button>
+
+            {/* PHONE */}
+            <button
+              type="button"
+              onClick={() =>
+                setShowInfo(showInfo === "phone" ? null : "phone")
+              }
+              title="Phone"
+            >
+              <Phone size={14} className="hover:text-amber-600 transition" />
+            </button>
+
+            {/* LOCATION */}
+            <a
+              href="https://maps.app.goo.gl/ZdSdVRFCMmP4eMos7"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Location"
+            >
+              <MapPin size={14} className="hover:text-amber-600 transition" />
+            </a>
+
+            {/* 🔽 SMALL INFO BOX */}
+            {showInfo && (
+              <div className="absolute top-6 right-0 rounded-md border bg-white px-3 py-2 text-xs text-gray-700 shadow-md">
+                {showInfo === "mail" && (
+                  <span>📧 omengg21@gmail.com</span>
+                )}
+                {showInfo === "phone" && (
+                  <span>📞 +91 98110 05905</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* HAMBURGER – MOBILE */}
@@ -126,24 +162,6 @@ export default function Navbar() {
                 </button>
               </li>
             ))}
-
-            <div className="mt-4 flex flex-col gap-3">
-              <a
-                href="/brochure.pdf"
-                className="rounded-md border border-gray-300 px-4 py-2 text-center font-semibold text-gray-800
-                hover:border-amber-500 hover:text-amber-600 transition-all"
-              >
-                Download Brochure
-              </a>
-
-              <a
-                href="/generate-bill"
-                className="rounded-md bg-amber-500 px-4 py-2 text-center font-semibold text-white
-                hover:bg-amber-400 transition-all"
-              >
-                Generate Bill
-              </a>
-            </div>
           </ul>
         </div>
       )}

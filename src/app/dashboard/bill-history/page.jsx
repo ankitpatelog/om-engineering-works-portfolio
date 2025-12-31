@@ -7,6 +7,8 @@ import toast, { Toaster } from "react-hot-toast";
 import PrintOptionsModal from "../../generate-bill-components/PrintOptionsModal"; // ✅ ADD
 
 export default function BillHistorySection() {
+  const [alertdata, setalertdata] = useState("delete");
+
   /* 📦 DATA */
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,9 +49,18 @@ export default function BillHistorySection() {
     );
     if (!msg) return;
 
-    const msg2 = confirm("Press ok to agree one more time to delete");
-    if (!msg2) return;
+    const value = prompt("Type 'delete' to confirm deletion");
 
+    
+    if (!value) {
+      return;
+    }
+
+    // ✅ must match your state value
+    if (value.toLowerCase() !== alertdata) {
+      toast.error("Please type 'delete' exactly to delete the invoice");
+      return;
+    }
     try {
       const res = await axios.delete(`/api/company/deleteinvoice/${invoiceId}`);
       setInvoices((prev) => prev.filter((inv) => inv._id !== invoiceId));
@@ -191,10 +202,6 @@ export default function BillHistorySection() {
 
                   <td className="border px-3 py-2">
                     <div className="flex justify-center gap-2">
-                      <button className="rounded border p-1">
-                        <Pencil size={16} />
-                      </button>
-
                       <button
                         className="rounded border p-1"
                         onClick={() => {
@@ -203,10 +210,6 @@ export default function BillHistorySection() {
                         }}
                       >
                         <Printer size={16} />
-                      </button>
-
-                      <button className="rounded border p-1">
-                        <Download size={16} />
                       </button>
 
                       <button
@@ -225,7 +228,7 @@ export default function BillHistorySection() {
       </div>
 
       {/* 🖨️ PRINT MODAL */}
-      <PrintOptionsModal
+      <PrintOptionsModal //component that shows the printing invoice 4 options
         open={printModalOpen}
         invoice={selectedInvoice}
         onClose={() => setPrintModalOpen(false)}

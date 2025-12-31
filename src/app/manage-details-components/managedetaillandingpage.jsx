@@ -7,12 +7,9 @@ export default function ManageDetailsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-6">
-      
       {/* Page Heading */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Manage Details
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Manage Details</h1>
         <p className="text-sm text-gray-600">
           Overview of your billing, customers, and products
         </p>
@@ -20,12 +17,10 @@ export default function ManageDetailsPage() {
 
       {/* SUMMARY CARDS */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        
-        <SummaryCard title="Total Bills" value="128" />
-        <SummaryCard title="Customers" value="42" />
-        <SummaryCard title="Products" value="86" />
-        <SummaryCard title="Total Revenue" value="₹ 12,45,300" />
-
+        <SummaryCard title="Total Bills" value="₹---" />
+        <SummaryCard title="Customers" value="₹---" />
+        <SummaryCard title="Products" value="₹---" />
+        <SummaryCard title="Total Revenue" value="₹---" />
       </div>
 
       {/* QUICK ACTIONS */}
@@ -72,9 +67,7 @@ function SummaryCard({ title, value }) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <p className="text-sm text-gray-500">{title}</p>
-      <p className="mt-1 text-2xl font-bold text-gray-900">
-        {value}
-      </p>
+      <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
     </div>
   );
 }

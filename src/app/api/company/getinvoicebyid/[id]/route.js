@@ -1,5 +1,5 @@
 import connectToDatabase from "@/library/mongoDb";
-import Invoice from "@/models/invoiceModel";
+import Invoice from "@/models/invoicesaveModel";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/library/auth";

@@ -1,26 +1,32 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { OrbitProgress } from "react-loading-indicators";
 import CompanyDetailsRequired from "../generate-bill-components/addcomapnymsg";
-import LandingPageBillmain from "../../app/generate-bill-components/createbill"
+import LandingPageBillmain from "../../app/generate-bill-components/createbill";
 
 export default function LandingPageBill() {
   const { status } = useSession();
-  const [hasDetail, setHasDetail] = useState(null); // 👈 IMPORTANT
+  const router = useRouter();
+
+  const [hasDetail, setHasDetail] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // ⏳ wait until session is resolved
     if (status === "loading") return;
 
+    // 🔐 not logged in → redirect
     if (status === "unauthenticated") {
-      setLoading(false);
-      setHasDetail(false);
+      router.replace("/login");
       return;
     }
 
+    // ✅ logged in → check company
     const checkCompany = async () => {
       try {
         const res = await axios.get("/api/company/check");
@@ -32,15 +38,20 @@ export default function LandingPageBill() {
         setLoading(false);
       }
     };
-    checkCompany();
-  }, [status]);
 
-  /* ✅ SHOW ONLY LOADER WHILE CHECKING */
+    checkCompany();
+  }, [status, router]);
+
+  /* ✅ Loader */
   if (loading) {
     return (
       <div className="flex justify-center py-6">
         <div style={{ transform: "scale(0.6)" }}>
-          <OrbitProgress variant="track-disc" color="#ef9b3d" size="small" />
+          <OrbitProgress
+            variant="track-disc"
+            color="#ef9b3d"
+            size="small"
+          />
         </div>
       </div>
     );
@@ -50,11 +61,10 @@ export default function LandingPageBill() {
     <>
       <Toaster position="top-right" />
 
-      {/* ✅ render ONLY after loading is finished */}
       {!hasDetail ? (
         <CompanyDetailsRequired />
       ) : (
-        <LandingPageBillmain/>
+        <LandingPageBillmain />
       )}
     </>
   );
