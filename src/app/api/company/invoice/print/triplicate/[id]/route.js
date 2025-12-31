@@ -1,11 +1,17 @@
-import puppeteer from "puppeteer";
+export const runtime = "nodejs";
+export const maxDuration = 30;
+
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
+
 import connectToDatabase from "@/library/mongoDb";
 import Invoice from "@/models/invoicesaveModel";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
   try {
-    const { id } = await params;
+    // ✅ correct params usage
+    const { id } = params;
 
     await connectToDatabase();
 
@@ -17,13 +23,15 @@ export async function GET(request, { params }) {
       );
     }
 
+    // ✅ Vercel-compatible Chromium
     const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
-    console.log(JSON.stringify(invoice, null, 2));
 
     const html = `
      <!DOCTYPE html>
@@ -31,7 +39,7 @@ export async function GET(request, { params }) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIPLICATE INVOICE</title>
+    <title>ORIGINAL INVOICE</title>
     <style>
         * {
             margin: 0;
@@ -358,7 +366,7 @@ export async function GET(request, { params }) {
         
         <div class="header">
             <div class="tax-invoice-title">TAX INVOICE</div>
-            <div class="original-stamp">Triplicate</div>
+            <div class="original-stamp">ORIGINAL</div>
             <div class="gst-rule">(Issued as per Rule 1 of GOODS AND SERVICES TAX - INVOICE RULES, 2016)</div>
         </div>
         
@@ -567,12 +575,20 @@ export async function GET(request, { params }) {
 </html>
 `;
 
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // ✅ safer than networkidle0 on Vercel
+    await page.setContent(html, {
+      waitUntil: "domcontentloaded",
+    });
 
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "10mm", bottom: "10mm" },
+      margin: {
+        top: "10mm",
+        bottom: "10mm",
+        left: "10mm",
+        right: "10mm",
+      },
     });
 
     await browser.close();
